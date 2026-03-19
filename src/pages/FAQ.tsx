@@ -3,30 +3,28 @@ import { ChevronDown } from "lucide-react";
 import Layout from "@/components/Layout";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionHeading from "@/components/SectionHeading";
-
-const faqs = [
-  { q: "How do private viewings work?", a: "Private viewings are arranged exclusively for pre-qualified clients. Once you express interest in a property, our advisors coordinate a discreet, personalized showing at a time that suits your schedule. Virtual tours are also available for international clients." },
-  { q: "What is the process for listing my property?", a: "We begin with a confidential consultation to understand your property, objectives, and timeline. Our team then conducts a comprehensive market analysis, develops a bespoke marketing strategy including cinematic visuals and editorial content, and positions your property across our premium channels." },
-  { q: "Do you handle international transactions?", a: "Absolutely. We operate across twelve global markets and have extensive experience managing cross-border transactions, including legal coordination, currency considerations, and tax advisory partnerships." },
-  { q: "How do you determine property pricing?", a: "Our pricing recommendations are data-driven, combining proprietary market intelligence, comparable transaction analysis, and deep understanding of buyer psychology in the luxury segment to position your property for maximum value." },
-  { q: "What makes Aurum Estates different from other agencies?", a: "We approach every property as a luxury brand launch — not a listing. Our cinematic marketing, editorial positioning, global buyer network, and white-glove service deliver results that consistently exceed market expectations." },
-  { q: "Do you offer investment advisory services?", a: "Yes. Our investment consultancy team provides comprehensive guidance on portfolio strategy, market timing, yield optimization, and development opportunities across the world's most promising luxury markets." },
-  { q: "How long does a typical sale take?", a: "Timelines vary based on property type, market conditions, and pricing strategy. However, our premium marketing approach and qualified buyer network typically accelerate the process significantly compared to traditional methods." },
-  { q: "Is my information kept confidential?", a: "Discretion is fundamental to our service. All client information, property details, and transaction specifics are treated with the highest level of confidentiality. Many of our transactions are conducted entirely off-market." },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FAQ = () => {
   const [open, setOpen] = useState<number | null>(0);
+  const { t } = useLanguage();
+
+  const faqs = [
+    { q: t("faq.1.q"), a: t("faq.1.a") },
+    { q: t("faq.2.q"), a: t("faq.2.a") },
+    { q: t("faq.3.q"), a: t("faq.3.a") },
+    { q: t("faq.4.q"), a: t("faq.4.a") },
+    { q: t("faq.5.q"), a: t("faq.5.a") },
+    { q: t("faq.6.q"), a: t("faq.6.a") },
+    { q: t("faq.7.q"), a: t("faq.7.a") },
+    { q: t("faq.8.q"), a: t("faq.8.a") },
+  ];
 
   return (
     <Layout>
       <section className="pt-32 pb-16">
         <div className="container-luxury">
-          <SectionHeading
-            subtitle="Questions"
-            title="Frequently Asked"
-            description="Answers to the most common questions about our services, process, and approach to luxury real estate."
-          />
+          <SectionHeading subtitle={t("faqPage.subtitle")} title={t("faqPage.title")} description={t("faqPage.desc")} />
         </div>
       </section>
 
@@ -45,9 +43,7 @@ const FAQ = () => {
                     className={`text-primary flex-shrink-0 transition-transform duration-300 ${open === i ? "rotate-180" : ""}`}
                   />
                 </button>
-                <div
-                  className={`overflow-hidden transition-all duration-500 ${open === i ? "max-h-96 pb-6" : "max-h-0"}`}
-                >
+                <div className={`overflow-hidden transition-all duration-500 ${open === i ? "max-h-96 pb-6" : "max-h-0"}`}>
                   <p className="text-muted-foreground font-body leading-relaxed">{faq.a}</p>
                 </div>
               </div>
