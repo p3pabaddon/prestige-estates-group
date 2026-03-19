@@ -3,6 +3,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import PageTransition from "./PageTransition";
 import ScrollProgress from "./ScrollProgress";
+import FloatingButtons from "./FloatingButtons";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
@@ -13,6 +14,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
         <main>{children}</main>
       </PageTransition>
       <Footer />
+      <FloatingButtons />
     </div>
   );
 };
