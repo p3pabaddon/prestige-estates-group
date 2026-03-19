@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionHeading from "@/components/SectionHeading";
-import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 import penthouseInterior from "@/assets/penthouse-interior.jpg";
 import waterfrontVilla from "@/assets/waterfront-villa.jpg";
@@ -20,15 +20,13 @@ const sold = [
 ];
 
 const Sold = () => {
+  const { t } = useLanguage();
+
   return (
     <Layout>
       <section className="pt-32 pb-16">
         <div className="container-luxury">
-          <SectionHeading
-            subtitle="Track Record"
-            title="Sold Portfolio"
-            description="A curated showcase of our recently concluded transactions. Each represents our commitment to achieving premium results with discretion and expertise."
-          />
+          <SectionHeading subtitle={t("soldPage.subtitle")} title={t("soldPage.title")} description={t("soldPage.desc")} />
         </div>
       </section>
 
@@ -42,7 +40,7 @@ const Sold = () => {
                     <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-background/30" />
                     <span className="absolute top-4 left-4 px-3 py-1 text-[10px] tracking-[0.2em] uppercase font-body font-medium bg-primary text-primary-foreground">
-                      Sold
+                      {t("sold.tag")}
                     </span>
                   </div>
                   <div className="p-6">

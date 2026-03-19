@@ -4,29 +4,28 @@ import Layout from "@/components/Layout";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionHeading from "@/components/SectionHeading";
 import ParallaxImage from "@/components/ParallaxImage";
+import { useLanguage } from "@/contexts/LanguageContext";
 import heroVilla from "@/assets/hero-villa.jpg";
 
-const services = [
-  { icon: Building2, title: "Luxury Property Sales", desc: "Strategic positioning and marketing of premium residences to attract qualified buyers from our global network." },
-  { icon: Key, title: "Premium Rentals", desc: "Securing exceptional tenants for your luxury property with comprehensive management and tenant screening." },
-  { icon: TrendingUp, title: "Investment Consultancy", desc: "Data-driven guidance on high-yield real estate investments across the world's most dynamic luxury markets." },
-  { icon: Megaphone, title: "Property Marketing", desc: "Cinematic visuals, editorial content, and premium channel distribution that transforms listings into desire." },
-  { icon: UserCheck, title: "Private Buyer Advisory", desc: "Dedicated search and acquisition services for discerning buyers seeking off-market and exclusive opportunities." },
-  { icon: Briefcase, title: "Portfolio Guidance", desc: "Holistic management of your real estate portfolio to optimize value, diversification, and long-term returns." },
-  { icon: Search, title: "Project Sales", desc: "Complete sales strategy and execution for new luxury developments, from pre-launch to final handover." },
-  { icon: BarChart3, title: "Market Intelligence", desc: "Proprietary research and analysis empowering informed decisions in an ever-evolving luxury property landscape." },
-];
-
 const Services = () => {
+  const { t } = useLanguage();
+
+  const services = [
+    { icon: Building2, title: t("servPage.s1"), desc: t("servPage.s1d") },
+    { icon: Key, title: t("servPage.s2"), desc: t("servPage.s2d") },
+    { icon: TrendingUp, title: t("servPage.s3"), desc: t("servPage.s3d") },
+    { icon: Megaphone, title: t("servPage.s4"), desc: t("servPage.s4d") },
+    { icon: UserCheck, title: t("servPage.s5"), desc: t("servPage.s5d") },
+    { icon: Briefcase, title: t("servPage.s6"), desc: t("servPage.s6d") },
+    { icon: Search, title: t("servPage.s7"), desc: t("servPage.s7d") },
+    { icon: BarChart3, title: t("servPage.s8"), desc: t("servPage.s8d") },
+  ];
+
   return (
     <Layout>
       <section className="pt-32 pb-16">
         <div className="container-luxury">
-          <SectionHeading
-            subtitle="What We Do"
-            title="Bespoke Real Estate Services"
-            description="A comprehensive suite of services designed for clients who expect nothing less than extraordinary. Every engagement is tailored, every outcome is measured by excellence."
-          />
+          <SectionHeading subtitle={t("servPage.subtitle")} title={t("servPage.title")} description={t("servPage.desc")} />
         </div>
       </section>
 
@@ -46,14 +45,13 @@ const Services = () => {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="relative overflow-hidden">
         <ParallaxImage src={heroVilla} alt="Contact" className="h-[50vh]" speed={0.15} />
         <div className="absolute inset-0 bg-background/70 flex items-center justify-center text-center">
           <ScrollReveal className="container-luxury">
-            <h2 className="font-display text-3xl md:text-4xl text-foreground mb-6">Let's Discuss Your Requirements</h2>
+            <h2 className="font-display text-3xl md:text-4xl text-foreground mb-6">{t("servPage.cta")}</h2>
             <Link to="/contact" className="luxury-btn-primary">
-              Book Consultation <ArrowRight size={16} className="ml-2" />
+              {t("servPage.ctaBtn")} <ArrowRight size={16} className="ml-2" />
             </Link>
           </ScrollReveal>
         </div>
