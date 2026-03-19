@@ -7,6 +7,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import ParallaxImage from "@/components/ParallaxImage";
 import SectionHeading from "@/components/SectionHeading";
 import PropertyCard from "@/components/PropertyCard";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 import heroVilla from "@/assets/hero-villa.jpg";
 import penthouseInterior from "@/assets/penthouse-interior.jpg";
