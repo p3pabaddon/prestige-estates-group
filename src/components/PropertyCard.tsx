@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Bed, Bath, Maximize } from "lucide-react";
+import { Bed, Bath, Maximize, Plus, Check } from "lucide-react";
 
 interface PropertyCardProps {
   image: string;
@@ -12,16 +12,37 @@ interface PropertyCardProps {
   sqm: number;
   tag?: string;
   type: string;
+  isComparing?: boolean;
+  onToggleCompare?: () => void;
+  compareDisabled?: boolean;
 }
 
-const PropertyCard = ({ image, title, location, price, beds, baths, sqm, tag, type }: PropertyCardProps) => {
+const PropertyCard = ({ image, title, location, price, beds, baths, sqm, tag, type, isComparing, onToggleCompare, compareDisabled }: PropertyCardProps) => {
   return (
-    <Link to="/property-details">
-      <motion.div
-        whileHover={{ y: -8 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="luxury-card group cursor-pointer"
-      >
+    <motion.div
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="luxury-card group cursor-pointer relative"
+    >
+      {/* Compare button */}
+      {onToggleCompare && (
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
+          disabled={compareDisabled && !isComparing}
+          className={`absolute top-4 right-14 z-10 w-8 h-8 flex items-center justify-center rounded-sm transition-all duration-300 ${
+            isComparing
+              ? "gradient-gold text-primary-foreground"
+              : compareDisabled
+                ? "bg-background/60 backdrop-blur-sm text-muted-foreground/40 cursor-not-allowed"
+                : "bg-background/60 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-background/80"
+          }`}
+          title={isComparing ? "Remove from comparison" : "Add to comparison"}
+        >
+          {isComparing ? <Check size={14} /> : <Plus size={14} />}
+        </button>
+      )}
+
+      <Link to="/property-details">
         <div className="relative overflow-hidden aspect-[4/3]">
           <img
             src={image}
@@ -52,8 +73,8 @@ const PropertyCard = ({ image, title, location, price, beds, baths, sqm, tag, ty
           <div className="luxury-divider mb-4" />
           <p className="font-display text-xl text-primary">{price}</p>
         </div>
-      </motion.div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 };
 
