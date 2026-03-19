@@ -7,6 +7,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import ParallaxImage from "@/components/ParallaxImage";
 import SectionHeading from "@/components/SectionHeading";
 import PropertyCard from "@/components/PropertyCard";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 import heroVilla from "@/assets/hero-villa.jpg";
 import penthouseInterior from "@/assets/penthouse-interior.jpg";
@@ -103,10 +104,7 @@ const Index = () => {
               className="flex flex-wrap gap-8 md:gap-12 mt-16 pt-8 border-t border-border/30"
             >
               {stats.map((stat) => (
-                <div key={stat.label}>
-                  <p className="font-display text-2xl md:text-3xl text-primary">{stat.value}</p>
-                  <p className="font-body text-xs tracking-wider uppercase text-muted-foreground mt-1">{stat.label}</p>
-                </div>
+                <AnimatedCounter key={stat.label} value={stat.value} label={stat.label} />
               ))}
             </motion.div>
           </div>
