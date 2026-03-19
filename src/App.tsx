@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnimatePresence } from "framer-motion";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index.tsx";
 import Properties from "./pages/Properties.tsx";
 import PropertyDetails from "./pages/PropertyDetails.tsx";
@@ -11,6 +13,7 @@ import About from "./pages/About.tsx";
 import Projects from "./pages/Projects.tsx";
 import Services from "./pages/Services.tsx";
 import Blog from "./pages/Blog.tsx";
+import BlogDetail from "./pages/BlogDetail.tsx";
 import FAQ from "./pages/FAQ.tsx";
 import Contact from "./pages/Contact.tsx";
 import Lifestyle from "./pages/Lifestyle.tsx";
@@ -31,6 +34,7 @@ const AnimatedRoutes = () => {
         <Route path="/projects" element={<Projects />} />
         <Route path="/services" element={<Services />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:id" element={<BlogDetail />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/lifestyle" element={<Lifestyle />} />
@@ -43,13 +47,17 @@ const AnimatedRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
