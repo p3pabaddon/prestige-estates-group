@@ -74,21 +74,31 @@ const Contact = () => {
                     <MapPin size={20} className="text-primary flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-display text-base text-foreground mb-1">{t("contactPage.office")}</h4>
-                      <p className="text-muted-foreground font-body text-sm">Sarraf 34 Plaza, Merkez Mah.<br />İstanbul, Türkiye</p>
+                      <p className="text-muted-foreground font-body text-sm leading-relaxed">
+                        Güzelyurt, Ertuğrul Gazi Cd. 59 A,<br />34515 Esenyurt / İstanbul
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <Phone size={20} className="text-primary flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-display text-base text-foreground mb-1">{t("contactPage.phone")}</h4>
-                      <p className="text-muted-foreground font-body text-sm">+90 (212) 650 34 34</p>
+                      <p className="text-muted-foreground font-body text-sm">
+                        <a href="tel:05302503252" className="hover:text-primary transition-colors text-foreground font-medium">
+                          0530 250 32 52
+                        </a>
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <Mail size={20} className="text-primary flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-display text-base text-foreground mb-1">{t("contactPage.email")}</h4>
-                      <p className="text-muted-foreground font-body text-sm">info@sarraf34.com</p>
+                      <p className="text-muted-foreground font-body text-sm">
+                        <a href="mailto:info@sarraf34.com" className="hover:text-primary transition-colors">
+                          info@sarraf34.com
+                        </a>
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -107,14 +117,14 @@ const Contact = () => {
           <ScrollReveal>
             <div className="mt-16 overflow-hidden rounded-sm border border-border">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d192697.8885055268!2d28.871954573199853!3d41.0053702157774!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa7040068086b%3A0xe1ccfe98bc01b0d0!2zxLBzdGFuYnVs!5e0!3m2!1str!2str!4v1710000000000!5m2!1str!2str"
+                src="https://maps.google.com/maps?q=G%C3%BCzelyurt%2C%20Ertu%C4%9Frul%20Gazi%20Cd.%2059%20A%2C%2034515%20Esenyurt%2F%C4%B0stanbul&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%"
-                height="400"
+                height="450"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Sarraf 34 Ofis Lokasyonu"
+                title="Sarraf 34 Ofis Lokasyonu - Esenyurt İstanbul"
                 className="w-full"
               />
             </div>

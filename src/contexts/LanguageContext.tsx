@@ -253,7 +253,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "contactPage.office": { tr: "Merkez Ofis", en: "Head Office" },
   "contactPage.hours": { tr: "Çalışma Saatleri", en: "Working Hours" },
   "contactPage.monFri": { tr: "Pzt–Cum: 09:00–19:00", en: "Mon–Fri: 09:00–19:00" },
-  "contactPage.sat": { tr: "Cumartesi: 10:00–18:00", en: "Saturday: 10:00–18:00" },
+  "contactPage.sat": { tr: "Cumartesi: 09:00–19:00", en: "Saturday: 09:00–19:00" },
   "contactPage.sun": { tr: "Pazar: Randevu ile", en: "Sunday: By Appointment" },
   "contactPage.thanks": { tr: "Mesajınız başarıyla iletildi. Sarraf 34 uzman danışmanımız en kısa sürede sizinle iletişime geçecektir.", en: "Thank you for reaching out. A Sarraf 34 advisor will contact you shortly." },
 

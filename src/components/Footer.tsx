@@ -51,10 +51,20 @@ const Footer = () => {
             <div>
               <h4 className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-6">{t("footer.contact")}</h4>
               <div className="space-y-3 text-muted-foreground font-body text-sm">
-                <p>+90 (212) 650 34 34</p>
-                <p>info@sarraf34.com</p>
-                <p>Sarraf 34 Plaza, Merkez Mah.<br />İstanbul, Türkiye</p>
-                <p className="pt-2 text-stone">{t("contactPage.monFri")}<br />{t("contactPage.sat")}</p>
+                <p>
+                  <a href="tel:05302503252" className="hover:text-primary transition-colors font-medium text-foreground">
+                    0530 250 32 52
+                  </a>
+                </p>
+                <p>
+                  <a href="mailto:info@sarraf34.com" className="hover:text-primary transition-colors">
+                    info@sarraf34.com
+                  </a>
+                </p>
+                <p className="leading-relaxed">
+                  Güzelyurt, Ertuğrul Gazi Cd. 59 A,<br />34515 Esenyurt / İstanbul
+                </p>
+                <p className="pt-2 text-stone text-xs">{t("contactPage.monFri")}<br />{t("contactPage.sat")}</p>
               </div>
             </div>
           </div>
