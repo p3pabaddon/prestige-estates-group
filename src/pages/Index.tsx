@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ArrowRight, Eye, Shield, Star, TrendingUp } from "lucide-react";
 import Layout from "@/components/Layout";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -9,6 +9,8 @@ import SectionHeading from "@/components/SectionHeading";
 import PropertyCard from "@/components/PropertyCard";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import { formatTRY } from "@/lib/crm";
 
 import heroVilla from "@/assets/hero-villa.jpg";
 import penthouseInterior from "@/assets/penthouse-interior.jpg";
@@ -20,7 +22,20 @@ import villaPool from "@/assets/villa-pool.jpg";
 import projectTower from "@/assets/project-tower.jpg";
 import office from "@/assets/office.jpg";
 
-const featuredProperties = [
+interface DisplayProperty {
+  id?: string;
+  image: string;
+  title: string;
+  location: string;
+  price: string;
+  beds: number;
+  baths: number;
+  sqm: number;
+  tag?: string;
+  type: string;
+}
+
+const defaultFeaturedProperties: DisplayProperty[] = [
   { image: penthouseInterior, title: "The Sovereign Penthouse", location: "Monte Carlo, Monaco", price: "€12,500,000", beds: 4, baths: 5, sqm: 420, tag: "Exclusive", type: "Penthouse" },
   { image: waterfrontVilla, title: "Villa Aquamarine", location: "Cap Ferrat, France", price: "€8,900,000", beds: 6, baths: 7, sqm: 680, tag: "Waterfront", type: "Villa" },
   { image: luxuryBuilding, title: "Obsidian Tower Residence", location: "Dubai Marina, UAE", price: "$5,200,000", beds: 3, baths: 4, sqm: 310, tag: "New Listing", type: "Apartment" },
@@ -33,6 +48,63 @@ const Index = () => {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const [properties, setProperties] = useState<DisplayProperty[]>(defaultFeaturedProperties);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("properties")
+          .select("*")
+          .eq("published", true)
+          .order("featured", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(6);
+
+        if (error) {
+          console.error("Error fetching properties:", error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const mapped: DisplayProperty[] = data.map((item: any) => {
+            const numBeds = parseInt(item.rooms?.split("+")[0] || "3", 10) || 3;
+            const formattedPrice = item.price
+              ? item.currency === "TRY"
+                ? formatTRY(item.price)
+                : `${item.currency === "EUR" ? "€" : "$"}${Number(item.price).toLocaleString("en-US")}`
+              : "Fiyat Belirtilmedi";
+
+            const primaryImg =
+              (item.images && item.images.length > 0 && item.images[0]) ||
+              heroVilla;
+
+            const loc = [item.neighborhood, item.district, item.city]
+              .filter(Boolean)
+              .join(", ") || item.location || "İstanbul";
+
+            return {
+              id: item.id,
+              image: primaryImg,
+              title: item.title,
+              location: loc,
+              price: formattedPrice,
+              beds: numBeds,
+              baths: item.bathrooms || 1,
+              sqm: item.gross_m2 || item.net_m2 || 120,
+              tag: item.tag || (item.featured ? "Öne Çıkan" : item.listing_type === "satilik" ? "Satılık" : "Kiralık"),
+              type: item.property_type || "Daire",
+            };
+          });
+          setProperties(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load featured properties", err);
+      }
+    };
+
+    fetchFeatured();
+  }, []);
 
   const stats = [
     { value: "€2.4B+", label: t("hero.portfolio") },
@@ -142,8 +214,8 @@ const Index = () => {
         <div className="container-luxury">
           <SectionHeading subtitle={t("featured.subtitle")} title={t("featured.title")} description={t("featured.desc")} />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProperties.map((p, i) => (
-              <ScrollReveal key={p.title} delay={i * 0.15}>
+            {properties.map((p, i) => (
+              <ScrollReveal key={p.id || p.title + i} delay={i * 0.15}>
                 <PropertyCard {...p} />
               </ScrollReveal>
             ))}

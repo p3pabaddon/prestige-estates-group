@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Bed, Bath, Maximize, Plus, Check } from "lucide-react";
 
 interface PropertyCardProps {
+  id?: string;
   image: string;
   title: string;
   location: string;
@@ -17,7 +18,23 @@ interface PropertyCardProps {
   compareDisabled?: boolean;
 }
 
-const PropertyCard = ({ image, title, location, price, beds, baths, sqm, tag, type, isComparing, onToggleCompare, compareDisabled }: PropertyCardProps) => {
+const PropertyCard = ({
+  id,
+  image,
+  title,
+  location,
+  price,
+  beds,
+  baths,
+  sqm,
+  tag,
+  type,
+  isComparing,
+  onToggleCompare,
+  compareDisabled,
+}: PropertyCardProps) => {
+  const detailLink = id ? `/property-details/${id}` : "/property-details";
+
   return (
     <motion.div
       whileHover={{ y: -8 }}
@@ -27,7 +44,11 @@ const PropertyCard = ({ image, title, location, price, beds, baths, sqm, tag, ty
       {/* Compare button */}
       {onToggleCompare && (
         <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleCompare();
+          }}
           disabled={compareDisabled && !isComparing}
           className={`absolute top-4 right-14 z-10 w-8 h-8 flex items-center justify-center rounded-sm transition-all duration-300 ${
             isComparing
@@ -42,11 +63,15 @@ const PropertyCard = ({ image, title, location, price, beds, baths, sqm, tag, ty
         </button>
       )}
 
-      <Link to="/property-details">
-        <div className="relative overflow-hidden aspect-[4/3]">
+      <Link to={detailLink}>
+        <div className="relative overflow-hidden aspect-[4/3] bg-secondary">
           <img
-            src={image}
+            src={image || "/placeholder.svg"}
             alt={title}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src =
+                "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+            }}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
@@ -61,8 +86,8 @@ const PropertyCard = ({ image, title, location, price, beds, baths, sqm, tag, ty
         </div>
 
         <div className="p-6">
-          <h3 className="font-display text-lg text-foreground mb-1">{title}</h3>
-          <p className="text-muted-foreground font-body text-xs tracking-wider uppercase mb-4">{location}</p>
+          <h3 className="font-display text-lg text-foreground mb-1 line-clamp-1">{title}</h3>
+          <p className="text-muted-foreground font-body text-xs tracking-wider uppercase mb-4 line-clamp-1">{location}</p>
 
           <div className="flex items-center gap-4 text-muted-foreground font-body text-xs mb-4">
             <span className="flex items-center gap-1.5"><Bed size={14} /> {beds}</span>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Search, MapPin, SlidersHorizontal, X } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -7,6 +7,8 @@ import SectionHeading from "@/components/SectionHeading";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCompare, { CompareProperty } from "@/components/PropertyCompare";
 import { Slider } from "@/components/ui/slider";
+import { supabase } from "@/integrations/supabase/client";
+import { formatTRY } from "@/lib/crm";
 
 import penthouseInterior from "@/assets/penthouse-interior.jpg";
 import waterfrontVilla from "@/assets/waterfront-villa.jpg";
@@ -14,8 +16,26 @@ import luxuryBuilding from "@/assets/luxury-building.jpg";
 import luxuryInterior from "@/assets/luxury-interior.jpg";
 import villaPool from "@/assets/villa-pool.jpg";
 import luxuryKitchen from "@/assets/luxury-kitchen.jpg";
+import heroVilla from "@/assets/hero-villa.jpg";
 
-const allProperties = [
+interface PropertyItem {
+  id?: string;
+  image: string;
+  title: string;
+  location: string;
+  price: string;
+  priceNum: number;
+  beds: number;
+  baths: number;
+  sqm: number;
+  tag?: string;
+  type: string;
+  listingType?: string;
+  lat: number;
+  lng: number;
+}
+
+const defaultProperties: PropertyItem[] = [
   { image: penthouseInterior, title: "The Sovereign Penthouse", location: "Monte Carlo, Monaco", price: "€12,500,000", priceNum: 12500000, beds: 4, baths: 5, sqm: 420, tag: "Exclusive", type: "Penthouse", lat: 43.7384, lng: 7.4246 },
   { image: waterfrontVilla, title: "Villa Aquamarine", location: "Cap Ferrat, France", price: "€8,900,000", priceNum: 8900000, beds: 6, baths: 7, sqm: 680, tag: "Waterfront", type: "Villa", lat: 43.6846, lng: 7.3275 },
   { image: luxuryBuilding, title: "Obsidian Tower Residence", location: "Dubai Marina, UAE", price: "$5,200,000", priceNum: 5200000, beds: 3, baths: 4, sqm: 310, tag: "New Listing", type: "Apartment", lat: 25.0804, lng: 55.1403 },
@@ -33,47 +53,135 @@ const formatPrice = (v: number) => {
 };
 
 const Properties = () => {
+  const [propertiesList, setPropertiesList] = useState<PropertyItem[]>(defaultProperties);
   const [activeType, setActiveType] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showMap, setShowMap] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<number | null>(null);
   const [compareList, setCompareList] = useState<CompareProperty[]>([]);
-  const types = ["All", "Villa", "Penthouse", "Apartment"];
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("properties")
+          .select("*")
+          .eq("published", true)
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Supabase properties error:", error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const mapped: PropertyItem[] = data.map((item: any) => {
+            const numBeds = parseInt(item.rooms?.split("+")[0] || "3", 10) || 3;
+            const priceVal = Number(item.price) || 0;
+            const formattedPrice = item.price
+              ? item.currency === "TRY"
+                ? formatTRY(item.price)
+                : `${item.currency === "EUR" ? "€" : "$"}${priceVal.toLocaleString("en-US")}`
+              : "Fiyat Belirtilmedi";
+
+            const primaryImg =
+              (item.images && item.images.length > 0 && item.images[0]) ||
+              heroVilla;
+
+            const loc = [item.neighborhood, item.district, item.city]
+              .filter(Boolean)
+              .join(", ") || item.location || "İstanbul";
+
+            return {
+              id: item.id,
+              image: primaryImg,
+              title: item.title,
+              location: loc,
+              price: formattedPrice,
+              priceNum: priceVal,
+              beds: numBeds,
+              baths: item.bathrooms || 1,
+              sqm: item.gross_m2 || item.net_m2 || 120,
+              tag: item.tag || (item.featured ? "Öne Çıkan" : item.listing_type === "satilik" ? "Satılık" : "Kiralık"),
+              type: item.property_type || "Daire",
+              listingType: item.listing_type || "satilik",
+              lat: item.lat || 41.0082,
+              lng: item.lng || 28.9784,
+            };
+          });
+          setPropertiesList(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load properties", err);
+      }
+    };
+
+    fetchAll();
+  }, []);
+
+  const types = useMemo(() => {
+    const set = new Set(["All"]);
+    propertiesList.forEach((p) => {
+      if (p.type) set.add(p.type);
+    });
+    return Array.from(set);
+  }, [propertiesList]);
 
   // Advanced filters
-  const [priceRange, setPriceRange] = useState([0, 20000000]);
+  const [priceRange, setPriceRange] = useState([0, 100000000]);
   const [minBeds, setMinBeds] = useState(0);
   const [minBaths, setMinBaths] = useState(0);
-  const [sqmRange, setSqmRange] = useState([0, 800]);
+  const [sqmRange, setSqmRange] = useState([0, 2000]);
 
   const resetFilters = () => {
-    setPriceRange([0, 20000000]);
+    setPriceRange([0, 100000000]);
     setMinBeds(0);
     setMinBaths(0);
-    setSqmRange([0, 800]);
+    setSqmRange([0, 2000]);
     setActiveType("All");
     setSearchQuery("");
   };
 
-  const hasActiveFilters = priceRange[0] > 0 || priceRange[1] < 20000000 || minBeds > 0 || minBaths > 0 || sqmRange[0] > 0 || sqmRange[1] < 800;
+  const hasActiveFilters =
+    priceRange[0] > 0 ||
+    priceRange[1] < 100000000 ||
+    minBeds > 0 ||
+    minBaths > 0 ||
+    sqmRange[0] > 0 ||
+    sqmRange[1] < 2000;
 
   const filtered = useMemo(() => {
-    let result = activeType === "All" ? allProperties : allProperties.filter(p => p.type === activeType);
+    let result =
+      activeType === "All"
+        ? propertiesList
+        : propertiesList.filter((p) => p.type.toLowerCase() === activeType.toLowerCase());
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.title.toLowerCase().includes(q) ||
-        p.location.toLowerCase().includes(q) ||
-        p.type.toLowerCase().includes(q)
+      result = result.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.location.toLowerCase().includes(q) ||
+          p.type.toLowerCase().includes(q)
       );
     }
-    result = result.filter(p => p.priceNum >= priceRange[0] && p.priceNum <= priceRange[1]);
-    result = result.filter(p => p.beds >= minBeds);
-    result = result.filter(p => p.baths >= minBaths);
-    result = result.filter(p => p.sqm >= sqmRange[0] && p.sqm <= sqmRange[1]);
+    if (priceRange[1] < 100000000 || priceRange[0] > 0) {
+      result = result.filter(
+        (p) => p.priceNum >= priceRange[0] && (priceRange[1] >= 100000000 || p.priceNum <= priceRange[1])
+      );
+    }
+    if (minBeds > 0) {
+      result = result.filter((p) => p.beds >= minBeds);
+    }
+    if (minBaths > 0) {
+      result = result.filter((p) => p.baths >= minBaths);
+    }
+    if (sqmRange[0] > 0 || sqmRange[1] < 2000) {
+      result = result.filter((p) => p.sqm >= sqmRange[0] && p.sqm <= sqmRange[1]);
+    }
     return result;
-  }, [activeType, searchQuery, priceRange, minBeds, minBaths, sqmRange]);
+  }, [propertiesList, activeType, searchQuery, priceRange, minBeds, minBaths, sqmRange]);
 
   const toggleCompare = useCallback((property: CompareProperty) => {
     setCompareList(prev => {
@@ -306,10 +414,10 @@ const Properties = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filtered.map((p, i) => (
-              <ScrollReveal key={p.title} delay={i * 0.08}>
+              <ScrollReveal key={p.id || p.title + i} delay={i * 0.08}>
                 <PropertyCard
                   {...p}
-                  isComparing={!!compareList.find(c => c.title === p.title)}
+                  isComparing={!!compareList.find((c) => c.title === p.title)}
                   onToggleCompare={() => toggleCompare(p)}
                   compareDisabled={compareList.length >= 4}
                 />

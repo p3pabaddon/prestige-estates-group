@@ -3,7 +3,8 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { formatTRY } from "@/lib/crm";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, X, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Loader2, Sparkles, Globe, FileText, ArrowRight } from "lucide-react";
+import { fetchPropertyFromUrl, parsePropertyFromHtml } from "@/lib/listingScraper";
 
 interface Property {
   id: string;
@@ -97,10 +98,16 @@ const AdminProperties = () => {
     e.preventDefault();
     if (!form.title?.trim()) return toast.error("Başlık zorunlu");
     setBusy(true);
+    const validImgs = imagesText
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .filter(isLegitimatePropertyImage);
+
     const payload = {
       ...form,
       title: form.title.trim(),
-      images: imagesText.split("\n").map((s) => s.trim()).filter(Boolean),
+      images: validImgs,
     } as Property;
     const { id, ...rest } = payload;
     const { error } = id
@@ -121,13 +128,75 @@ const AdminProperties = () => {
     load();
   };
 
+  const [importOpen, setImportOpen] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [importRawText, setImportRawText] = useState("");
+  const [importBusy, setImportBusy] = useState(false);
+
+  const handleUrlImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!importUrl.trim()) return toast.error("Lütfen bir ilan linki girin");
+    setImportBusy(true);
+    try {
+      const { source_portal: _sp, ...data } = await fetchPropertyFromUrl(importUrl);
+      const cleanImgs = (data.images || []).filter(isLegitimatePropertyImage);
+      setForm({
+        ...empty,
+        ...data,
+        images: cleanImgs,
+        published: true,
+      });
+      setImagesText(cleanImgs.join("\n"));
+      setImportOpen(false);
+      setOpen(true);
+      toast.success("İlan verileri başarıyla çekildi! İnceleyip kaydedebilirsiniz.");
+    } catch (err: any) {
+      toast.error(err.message || "İlan çekilemedi");
+    } finally {
+      setImportBusy(false);
+    }
+  };
+
+  const handleTextImport = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!importRawText.trim()) return toast.error("Lütfen sayfa içeriğini yapıştırın");
+    try {
+      const { source_portal: _sp2, ...data } = parsePropertyFromHtml(importRawText, importUrl);
+      const cleanImgs = (data.images || []).filter(isLegitimatePropertyImage);
+      setForm({
+        ...empty,
+        ...data,
+        images: cleanImgs,
+        published: true,
+      });
+      setImagesText(cleanImgs.join("\n"));
+      setImportOpen(false);
+      setOpen(true);
+      toast.success("İlan içeriği ayrıştırıldı! Lütfen bilgileri kontrol edip kaydedin.");
+    } catch (err: any) {
+      toast.error("İçerik ayrıştırılırken hata oluştu");
+    }
+  };
+
   return (
     <AdminLayout
       title="İlanlar"
       action={
-        <button onClick={create} className="gradient-gold text-primary-foreground px-5 py-2.5 text-xs tracking-[0.2em] uppercase font-body flex items-center gap-2">
-          <Plus size={14} /> Yeni İlan
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              setImportUrl("");
+              setImportRawText("");
+              setImportOpen(true);
+            }}
+            className="border border-primary/40 text-primary hover:bg-primary/10 px-4 py-2.5 text-xs tracking-[0.2em] uppercase font-body flex items-center gap-2 transition-colors"
+          >
+            <Sparkles size={14} /> Linkten Çek (Bot)
+          </button>
+          <button onClick={create} className="gradient-gold text-primary-foreground px-5 py-2.5 text-xs tracking-[0.2em] uppercase font-body flex items-center gap-2">
+            <Plus size={14} /> Yeni İlan
+          </button>
+        </div>
       }
     >
       {items.length === 0 ? (
@@ -302,6 +371,104 @@ const AdminProperties = () => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {importOpen && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm overflow-y-auto p-4 md:p-10 flex items-start justify-center pt-[5vh]">
+          <div className="luxury-card max-w-2xl w-full p-6 md:p-8 relative">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <Sparkles size={16} />
+                </div>
+                <div>
+                  <h2 className="font-display text-lg text-foreground">İlanı Portaldan Aktar</h2>
+                  <p className="font-body text-xs text-muted-foreground">Sahibinden · Hepsiemlak · Emlakjet</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setImportOpen(false)} className="text-muted-foreground hover:text-foreground">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-5">
+              {/* PRIMARY: Paste Method */}
+              <div className="p-5 rounded border border-primary/30 bg-primary/[0.03] space-y-4">
+                <div className="flex items-center gap-2">
+                  <FileText size={15} className="text-primary" />
+                  <span className="font-body text-sm font-semibold text-foreground">Sayfa İçeriğini Yapıştır</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-500 font-body ml-auto">Önerilen</span>
+                </div>
+
+                <div className="font-body text-xs text-muted-foreground space-y-2.5 bg-background/60 p-3.5 rounded border border-border/50">
+                  <p className="font-semibold text-foreground text-[11px] mb-2">📋 Nasıl Yapılır? (3 Adım)</p>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold min-w-[18px]">1.</span>
+                    <span>İlan sayfasını tarayıcıda açın (Sahibinden, Hepsiemlak veya Emlakjet)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold min-w-[18px]">2.</span>
+                    <span>Sayfada sağ tık → <kbd className="px-1.5 py-0.5 bg-secondary border border-border rounded text-[10px] font-mono">Sayfa Kaynağını Görüntüle</kbd> (veya <kbd className="px-1.5 py-0.5 bg-secondary border border-border rounded text-[10px] font-mono">Ctrl + U</kbd>)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold min-w-[18px]">3.</span>
+                    <span><kbd className="px-1.5 py-0.5 bg-secondary border border-border rounded text-[10px] font-mono">Ctrl + A</kbd> ile tümünü seç → <kbd className="px-1.5 py-0.5 bg-secondary border border-border rounded text-[10px] font-mono">Ctrl + C</kbd> ile kopyala → Aşağıya yapıştır</span>
+                  </div>
+                </div>
+
+                <form onSubmit={handleTextImport} className="space-y-3">
+                  <textarea
+                    className={`${input} min-h-28 font-mono text-xs leading-relaxed`}
+                    placeholder="Kopyaladığınız sayfa kaynağını veya sayfa metnini buraya yapıştırın..."
+                    value={importRawText}
+                    onChange={(e) => setImportRawText(e.target.value)}
+                    rows={6}
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-muted-foreground font-body">
+                      {importRawText.length > 0 ? `${importRawText.length.toLocaleString("tr-TR")} karakter yapıştırıldı` : "Henüz içerik yapıştırılmadı"}
+                    </span>
+                    <button
+                      type="submit"
+                      disabled={!importRawText.trim()}
+                      className="gradient-gold text-primary-foreground px-6 py-2.5 text-xs tracking-[0.15em] uppercase font-body flex items-center gap-2 disabled:opacity-40"
+                    >
+                      <Sparkles size={13} /> Ayrıştır ve Doldur
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* SECONDARY: URL Fetch (with honest warning) */}
+              <details className="group">
+                <summary className="cursor-pointer font-body text-xs text-muted-foreground hover:text-foreground flex items-center gap-2 select-none py-1">
+                  <Globe size={13} />
+                  <span>Alternatif: Doğrudan link ile dene</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-600">Bot koruması nedeniyle çoğunlukla çalışmaz</span>
+                </summary>
+                <form onSubmit={handleUrlImport} className="mt-3 p-4 rounded border border-border/60 bg-secondary/30 space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      className={input}
+                      placeholder="https://www.sahibinden.com/ilan/..."
+                      value={importUrl}
+                      onChange={(e) => setImportUrl(e.target.value)}
+                    />
+                    <button
+                      type="submit"
+                      disabled={importBusy}
+                      className="border border-primary/40 text-primary hover:bg-primary/10 px-5 py-2 text-xs tracking-[0.15em] uppercase font-body flex items-center gap-1.5 shrink-0 disabled:opacity-50"
+                    >
+                      {importBusy ? <Loader2 size={13} className="animate-spin" /> : <ArrowRight size={13} />}
+                      {importBusy ? "Deneniyor..." : "Dene"}
+                    </button>
+                  </div>
+                </form>
+              </details>
+            </div>
+          </div>
         </div>
       )}
     </AdminLayout>
