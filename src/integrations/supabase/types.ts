@@ -14,16 +14,324 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customer_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          id: string
+          note: string | null
+          stage: Database["public"]["Enums"]["customer_stage"] | null
+        }
+        Insert: {
+          activity_type?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          id?: string
+          note?: string | null
+          stage?: Database["public"]["Enums"]["customer_stage"] | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          id?: string
+          note?: string | null
+          stage?: Database["public"]["Enums"]["customer_stage"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_activities_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          assigned_to: string | null
+          budget_max: number | null
+          budget_min: number | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          full_name: string
+          id: string
+          interested_district: string | null
+          interested_type: string | null
+          notes: string | null
+          phone: string | null
+          property_id: string | null
+          source: string | null
+          stage: Database["public"]["Enums"]["customer_stage"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          interested_district?: string | null
+          interested_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          property_id?: string | null
+          source?: string | null
+          stage?: Database["public"]["Enums"]["customer_stage"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          interested_district?: string | null
+          interested_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          property_id?: string | null
+          source?: string | null
+          stage?: Database["public"]["Enums"]["customer_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          bathrooms: number | null
+          building_age: string | null
+          city: string | null
+          created_at: string
+          created_by: string | null
+          credit_eligible: boolean
+          currency: string
+          description: string | null
+          district: string | null
+          external_url: string | null
+          featured: boolean
+          floor: string | null
+          furnished: boolean
+          gross_m2: number | null
+          heating: string | null
+          id: string
+          images: string[]
+          lat: number | null
+          listing_type: string
+          lng: number | null
+          location: string | null
+          net_m2: number | null
+          price: number | null
+          property_type: string
+          published: boolean
+          rooms: string | null
+          status: string
+          tag: string | null
+          title: string
+          total_floors: number | null
+          updated_at: string
+        }
+        Insert: {
+          bathrooms?: number | null
+          building_age?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_eligible?: boolean
+          currency?: string
+          description?: string | null
+          district?: string | null
+          external_url?: string | null
+          featured?: boolean
+          floor?: string | null
+          furnished?: boolean
+          gross_m2?: number | null
+          heating?: string | null
+          id?: string
+          images?: string[]
+          lat?: number | null
+          listing_type?: string
+          lng?: number | null
+          location?: string | null
+          net_m2?: number | null
+          price?: number | null
+          property_type?: string
+          published?: boolean
+          rooms?: string | null
+          status?: string
+          tag?: string | null
+          title: string
+          total_floors?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bathrooms?: number | null
+          building_age?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_eligible?: boolean
+          currency?: string
+          description?: string | null
+          district?: string | null
+          external_url?: string | null
+          featured?: boolean
+          floor?: string | null
+          furnished?: boolean
+          gross_m2?: number | null
+          heating?: string | null
+          id?: string
+          images?: string[]
+          lat?: number | null
+          listing_type?: string
+          lng?: number | null
+          location?: string | null
+          net_m2?: number | null
+          price?: number | null
+          property_type?: string
+          published?: boolean
+          rooms?: string | null
+          status?: string
+          tag?: string | null
+          title?: string
+          total_floors?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          done: boolean
+          id: string
+          note: string | null
+          notified: boolean
+          remind_at: string
+          title: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          done?: boolean
+          id?: string
+          note?: string | null
+          notified?: boolean
+          remind_at: string
+          title: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          done?: boolean
+          id?: string
+          note?: string | null
+          notified?: boolean
+          remind_at?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "agent"
+      customer_stage:
+        | "yeni"
+        | "iletisim"
+        | "ilgileniyor"
+        | "randevu"
+        | "ofis_ziyareti"
+        | "pazarlik"
+        | "satis"
+        | "kaybedildi"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +458,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "agent"],
+      customer_stage: [
+        "yeni",
+        "iletisim",
+        "ilgileniyor",
+        "randevu",
+        "ofis_ziyareti",
+        "pazarlik",
+        "satis",
+        "kaybedildi",
+      ],
+    },
   },
 } as const
