@@ -19,6 +19,14 @@ import Contact from "./pages/Contact.tsx";
 import Lifestyle from "./pages/Lifestyle.tsx";
 import Sold from "./pages/Sold.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Auth from "./pages/Auth.tsx";
+import Dashboard from "./pages/admin/Dashboard.tsx";
+import AdminProperties from "./pages/admin/AdminProperties.tsx";
+import AdminCustomers from "./pages/admin/AdminCustomers.tsx";
+import CustomerDetail from "./pages/admin/CustomerDetail.tsx";
+import AdminReminders from "./pages/admin/AdminReminders.tsx";
+import RequireAuth from "./components/admin/RequireAuth.tsx";
+import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +47,12 @@ const AnimatedRoutes = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/lifestyle" element={<Lifestyle />} />
         <Route path="/sold" element={<Sold />} />
+        <Route path="/giris" element={<Auth />} />
+        <Route path="/admin" element={<RequireAuth><Dashboard /></RequireAuth>} />
+        <Route path="/admin/ilanlar" element={<RequireAuth><AdminProperties /></RequireAuth>} />
+        <Route path="/admin/musteriler" element={<RequireAuth><AdminCustomers /></RequireAuth>} />
+        <Route path="/admin/musteriler/:id" element={<RequireAuth><CustomerDetail /></RequireAuth>} />
+        <Route path="/admin/hatirlatmalar" element={<RequireAuth><AdminReminders /></RequireAuth>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -53,7 +67,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <AnimatedRoutes />
+            <AuthProvider>
+              <AnimatedRoutes />
+            </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
       </LanguageProvider>
