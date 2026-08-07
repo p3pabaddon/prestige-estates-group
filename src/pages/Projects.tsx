@@ -12,10 +12,10 @@ import waterfrontVilla from "@/assets/waterfront-villa.jpg";
 import heroVilla from "@/assets/hero-villa.jpg";
 
 const projects = [
-  { image: projectTower, title: "The Aurum Tower", location: "Dubai, UAE", type: "Branded Residences", status: "Under Construction", units: "82 Residences" },
-  { image: luxuryBuilding, title: "Marina Prestige", location: "Monaco", type: "Waterfront Apartments", status: "Pre-Launch", units: "24 Units" },
-  { image: waterfrontVilla, title: "Côte d'Or Villas", location: "Saint-Tropez, France", type: "Signature Villas", status: "Selling Now", units: "12 Villas" },
-  { image: heroVilla, title: "The Sovereign Collection", location: "Marbella, Spain", type: "Luxury Residences", status: "Completed", units: "36 Homes" },
+  { image: projectTower, title: "Sarraf 34 Rezidans Kuleleri", location: "İstanbul / Başakşehir", type: "Rezidans & Ticari Alanlar", status: "İnşaat Devam Ediyor", units: "120 Konut" },
+  { image: luxuryBuilding, title: "Sarraf 34 Prestij Konakları", location: "İstanbul / Bağcılar", type: "Kentsel Dönüşüm & Yaşam", status: "Satışta", units: "48 Daire" },
+  { image: waterfrontVilla, title: "Sarraf 34 Marina Villaları", location: "İstanbul / Beylikdüzü", type: "Müstakil Lüks Villa", status: "Lansman Aşamasında", units: "16 Villa" },
+  { image: heroVilla, title: "Sarraf 34 Panorama Evleri", location: "İstanbul / Bahçelievler", type: "Aile Konsepti Lüks Konut", status: "Tamamlandı / Teslime Hazır", units: "64 Daire" },
 ];
 
 const Projects = () => {

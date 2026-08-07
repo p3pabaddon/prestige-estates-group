@@ -40,9 +40,9 @@ const Header = () => {
         }`}
       >
         <div className="container-luxury flex items-center justify-between">
-          <Link to="/" className="font-display text-lg tracking-wider text-foreground flex-shrink-0">
-            <span className="gradient-gold-text font-bold">AURUM</span>
-            <span className="text-foreground font-light ml-1">ESTATES</span>
+          <Link to="/" className="font-display text-base sm:text-lg tracking-wider text-foreground flex-shrink-0 flex items-center gap-1.5">
+            <span className="gradient-gold-text font-extrabold tracking-widest">SARRAF 34</span>
+            <span className="text-foreground/90 font-light text-xs tracking-wider uppercase hidden sm:inline">İNŞAAT GAYRİMENKUL</span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-6 ml-10">

@@ -190,7 +190,7 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <ScrollReveal direction="left">
               <div className="relative">
-                <ParallaxImage src={office} alt="Aurum Estates office" className="aspect-[4/3] rounded-sm" speed={0.15} />
+                <ParallaxImage src={office} alt="Sarraf 34 İnşaat Ofisi" className="aspect-[4/3] rounded-sm" speed={0.15} />
                 <div className="absolute -bottom-6 -right-6 w-32 h-32 border border-primary/20" />
               </div>
             </ScrollReveal>

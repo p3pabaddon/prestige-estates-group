@@ -11,9 +11,9 @@ const Footer = () => {
         <ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
             <div className="lg:col-span-1">
-              <Link to="/" className="font-display text-lg tracking-wider">
-                <span className="gradient-gold-text font-bold">AURUM</span>
-                <span className="text-foreground font-light ml-1">ESTATES</span>
+              <Link to="/" className="font-display text-base sm:text-lg tracking-wider flex items-center gap-1.5">
+                <span className="gradient-gold-text font-extrabold tracking-widest">SARRAF 34</span>
+                <span className="text-foreground font-light text-xs tracking-wider uppercase">İNŞAAT GAYRİMENKUL</span>
               </Link>
               <p className="text-muted-foreground font-body text-sm leading-relaxed mt-6">{t("footer.desc")}</p>
               <div className="luxury-divider mt-8" />
@@ -51,9 +51,9 @@ const Footer = () => {
             <div>
               <h4 className="font-body text-xs tracking-[0.2em] uppercase text-primary mb-6">{t("footer.contact")}</h4>
               <div className="space-y-3 text-muted-foreground font-body text-sm">
-                <p>+1 (555) 900-8800</p>
-                <p>concierge@aurumestates.com</p>
-                <p>42 Prestige Boulevard<br />Monaco, MC 98000</p>
+                <p>+90 (212) 650 34 34</p>
+                <p>info@sarraf34.com</p>
+                <p>Sarraf 34 Plaza, Merkez Mah.<br />İstanbul, Türkiye</p>
                 <p className="pt-2 text-stone">{t("contactPage.monFri")}<br />{t("contactPage.sat")}</p>
               </div>
             </div>

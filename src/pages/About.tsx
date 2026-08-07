@@ -22,7 +22,7 @@ const About = () => {
   return (
     <Layout>
       <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
-        <ParallaxImage src={office} alt="Aurum Estates" className="h-full" speed={0.2} />
+        <ParallaxImage src={office} alt="Sarraf 34 İnşaat Yapı Gayrimenkul" className="h-full" speed={0.2} />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent flex items-end">
           <div className="container-luxury pb-16">
             <ScrollReveal>
@@ -64,7 +64,7 @@ const About = () => {
       </section>
 
       <section className="relative overflow-hidden">
-        <ParallaxImage src={heroVilla} alt="Contact Aurum" className="h-[50vh]" speed={0.15} />
+        <ParallaxImage src={heroVilla} alt="Sarraf 34 İletişim" className="h-[50vh]" speed={0.15} />
         <div className="absolute inset-0 bg-background/70 flex items-center justify-center text-center">
           <ScrollReveal className="container-luxury">
             <h2 className="font-display text-3xl md:text-4xl text-foreground mb-6">{t("aboutPage.cta")}</h2>

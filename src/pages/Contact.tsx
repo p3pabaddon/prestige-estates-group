@@ -74,21 +74,21 @@ const Contact = () => {
                     <MapPin size={20} className="text-primary flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-display text-base text-foreground mb-1">{t("contactPage.office")}</h4>
-                      <p className="text-muted-foreground font-body text-sm">42 Prestige Boulevard<br />Monaco, MC 98000</p>
+                      <p className="text-muted-foreground font-body text-sm">Sarraf 34 Plaza, Merkez Mah.<br />İstanbul, Türkiye</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <Phone size={20} className="text-primary flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-display text-base text-foreground mb-1">{t("contactPage.phone")}</h4>
-                      <p className="text-muted-foreground font-body text-sm">+1 (555) 900-8800</p>
+                      <p className="text-muted-foreground font-body text-sm">+90 (212) 650 34 34</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <Mail size={20} className="text-primary flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-display text-base text-foreground mb-1">{t("contactPage.email")}</h4>
-                      <p className="text-muted-foreground font-body text-sm">concierge@aurumestates.com</p>
+                      <p className="text-muted-foreground font-body text-sm">info@sarraf34.com</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -107,14 +107,14 @@ const Contact = () => {
           <ScrollReveal>
             <div className="mt-16 overflow-hidden rounded-sm border border-border">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2882.5553940977566!2d7.4165!3d43.7384!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12cdc26f77e615f5%3A0x7a69a5d3e3fa1003!2sMonaco!5e0!3m2!1sen!2sfr!4v1710000000000!5m2!1sen!2sfr"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d192697.8885055268!2d28.871954573199853!3d41.0053702157774!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa7040068086b%3A0xe1ccfe98bc01b0d0!2zxLBzdGFuYnVs!5e0!3m2!1str!2str!4v1710000000000!5m2!1str!2str"
                 width="100%"
                 height="400"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Office Location"
+                title="Sarraf 34 Ofis Lokasyonu"
                 className="w-full"
               />
             </div>

@@ -11,12 +11,12 @@ import luxuryBuilding from "@/assets/luxury-building.jpg";
 import heroVilla from "@/assets/hero-villa.jpg";
 
 const sold = [
-  { image: luxuryInterior, title: "Villa Serenità", location: "Lake Como, Italy", price: "€6,800,000", type: "Villa" },
-  { image: villaPool, title: "Horizon Estate", location: "Mykonos, Greece", price: "€4,200,000", type: "Villa" },
-  { image: penthouseInterior, title: "The Pinnacle Suite", location: "London, UK", price: "£9,500,000", type: "Penthouse" },
-  { image: waterfrontVilla, title: "Casa Celeste", location: "Sardinia, Italy", price: "€5,600,000", type: "Villa" },
-  { image: luxuryBuilding, title: "Sky Loft One", location: "Miami, USA", price: "$7,200,000", type: "Apartment" },
-  { image: heroVilla, title: "La Maison Dorée", location: "Cannes, France", price: "€11,400,000", type: "Villa" },
+  { image: luxuryInterior, title: "Boğaz Manzaralı Yalı Dairesi", location: "Sarıyer / Yeniköy, İstanbul", price: "₺85.000.000", type: "Yalı Dairesi" },
+  { image: villaPool, title: "Marina Manzaralı Müstakil Villa", location: "Beylikdüzü / Yakuplu, İstanbul", price: "₺32.000.000", type: "Lüks Villa" },
+  { image: penthouseInterior, title: "Ataköy Sahil 5+2 Penthouse", location: "Bakırköy / Ataköy, İstanbul", price: "₺45.000.000", type: "Penthouse" },
+  { image: waterfrontVilla, title: "Vadi Konakları 4+1 Dubleks", location: "Başakşehir, İstanbul", price: "₺18.500.000", type: "Dubleks Daire" },
+  { image: luxuryBuilding, title: "Merkez Rezidans 3+1 Panoramik", location: "Bağcılar / Mahmutbey, İstanbul", price: "₺11.250.000", type: "Rezidans" },
+  { image: heroVilla, title: "Bahçelievler Konakları 3+1 Daire", location: "Bahçelievler, İstanbul", price: "₺9.800.000", type: "Lüks Daire" },
 ];
 
 const Sold = () => {
