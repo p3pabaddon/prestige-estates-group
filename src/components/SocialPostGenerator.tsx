@@ -79,63 +79,83 @@ export default function SocialPostGenerator({
     canvas.width = width;
     canvas.height = height;
 
-    const img = new window.Image();
-    img.crossOrigin = "anonymous";
-    img.src = currentImg;
+    const renderElements = (loadedImg?: HTMLImageElement | null) => {
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
 
-    img.onload = () => {
-      // 1. Draw Image centered with cover fit
-      const scale = Math.max(width / img.width, height / img.height);
-      const x = width / 2 - (img.width / 2) * scale;
-      const y = height / 2 - (img.height / 2) * scale;
-      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+      if (loadedImg && loadedImg.naturalWidth > 0) {
+        // 1. Draw Image centered with cover fit
+        const scale = Math.max(width / loadedImg.naturalWidth, height / loadedImg.naturalHeight);
+        const x = width / 2 - (loadedImg.naturalWidth / 2) * scale;
+        const y = height / 2 - (loadedImg.naturalHeight / 2) * scale;
+        ctx.drawImage(loadedImg, x, y, loadedImg.naturalWidth * scale, loadedImg.naturalHeight * scale);
 
-      // 2. Luxury Gradient Overlay
-      const grad = ctx.createLinearGradient(0, 0, 0, height);
-      grad.addColorStop(0, "rgba(5, 5, 8, 0.85)");
-      grad.addColorStop(0.2, "rgba(5, 5, 8, 0.3)");
-      grad.addColorStop(0.6, "rgba(5, 5, 8, 0.5)");
-      grad.addColorStop(1, "rgba(5, 5, 8, 0.95)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
+        // 2. Luxury Dark Gradient Overlay over image
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, "rgba(5, 5, 12, 0.85)");
+        grad.addColorStop(0.25, "rgba(5, 5, 12, 0.45)");
+        grad.addColorStop(0.65, "rgba(5, 5, 12, 0.65)");
+        grad.addColorStop(1, "rgba(5, 5, 12, 0.95)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      } else {
+        // Fallback luxury dark golden gradient background if image fails/loads slow
+        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+        bgGrad.addColorStop(0, "#0F0F1A");
+        bgGrad.addColorStop(0.5, "#1A1829");
+        bgGrad.addColorStop(1, "#0B0B12");
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Decorative background gold accent circle
+        const circleGrad = ctx.createRadialGradient(width / 2, height / 2, 50, width / 2, height / 2, 400);
+        circleGrad.addColorStop(0, "rgba(212, 175, 55, 0.15)");
+        circleGrad.addColorStop(1, "rgba(212, 175, 55, 0)");
+        ctx.fillStyle = circleGrad;
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, 400, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // 3. Top Header: Sarraf 34 Branding
       ctx.fillStyle = "#D4AF37"; // Gold
-      ctx.font = "bold 32px 'Cinzel', serif, sans-serif";
+      ctx.font = "bold 34px sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("SARRAF 34", width / 2, format === "post" ? 80 : 140);
 
       ctx.fillStyle = "#E5E7EB";
-      ctx.font = "500 16px sans-serif";
-      ctx.letterSpacing = "4px";
+      ctx.font = "600 16px sans-serif";
       ctx.fillText("İNŞAAT & GAYRİMENKUL", width / 2, format === "post" ? 115 : 175);
 
       // 4. Accent Tag Badge
-      if (accentText) {
-        ctx.fillStyle = "#D4AF37";
-        const tagWidth = 240;
+      if (accentText.trim()) {
+        ctx.font = "bold 16px sans-serif";
+        const badgeText = accentText.trim().toUpperCase();
+        const textMetrics = ctx.measureText(badgeText);
+        const tagWidth = Math.max(220, textMetrics.width + 48);
         const tagHeight = 44;
         const tagX = width / 2 - tagWidth / 2;
         const tagY = format === "post" ? 145 : 210;
 
+        ctx.fillStyle = "#D4AF37";
         ctx.fillRect(tagX, tagY, tagWidth, tagHeight);
         ctx.fillStyle = "#090A0F";
-        ctx.font = "bold 16px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(accentText.toUpperCase(), width / 2, tagY + 28);
+        ctx.fillText(badgeText, width / 2, tagY + 28);
       }
 
       // 5. Bottom Info Box
-      const boxY = format === "post" ? height - 340 : height - 520;
+      const boxY = format === "post" ? height - 350 : height - 540;
+      const boxHeight = format === "post" ? 290 : 460;
 
       // Inner Gold Border Line
-      ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.5)";
       ctx.lineWidth = 2;
-      ctx.strokeRect(50, boxY, width - 100, format === "post" ? 280 : 440);
+      ctx.strokeRect(50, boxY, width - 100, boxHeight);
 
       // Semi-transparent background for text box
-      ctx.fillStyle = "rgba(10, 10, 15, 0.85)";
-      ctx.fillRect(52, boxY + 2, width - 104, (format === "post" ? 280 : 440) - 4);
+      ctx.fillStyle = "rgba(10, 10, 18, 0.88)";
+      ctx.fillRect(52, boxY + 2, width - 104, boxHeight - 4);
 
       // Property Title
       ctx.fillStyle = "#FFFFFF";
@@ -164,13 +184,44 @@ export default function SocialPostGenerator({
       if (format === "story") {
         ctx.fillStyle = "#E5E7EB";
         ctx.font = "bold 22px sans-serif";
-        ctx.fillText("📞 0532 552 34 34", width / 2, boxY + 330);
+        ctx.fillText("📞 0532 552 34 34", width / 2, boxY + 335);
 
         ctx.fillStyle = "#9CA3AF";
         ctx.font = "16px sans-serif";
-        ctx.fillText("www.sarraf34.com", width / 2, boxY + 365);
+        ctx.fillText("www.sarraf34.com", width / 2, boxY + 370);
       }
     };
+
+    // First render text and layout immediately (prevents pitch black canvas)
+    renderElements(null);
+
+    // Now attempt to load image
+    if (currentImg) {
+      const img = new window.Image();
+      img.crossOrigin = "anonymous";
+
+      img.onload = () => {
+        renderElements(img);
+      };
+
+      img.onerror = () => {
+        // Retry without crossOrigin if CORS failed
+        const retryImg = new window.Image();
+        retryImg.onload = () => {
+          renderElements(retryImg);
+        };
+        retryImg.onerror = () => {
+          renderElements(null);
+        };
+        retryImg.src = currentImg;
+      };
+
+      img.src = currentImg;
+
+      if (img.complete && img.naturalWidth > 0) {
+        renderElements(img);
+      }
+    }
   }, [format, currentImg, accentText, property.title, locationText, specsText, priceText]);
 
   useEffect(() => {
@@ -185,11 +236,19 @@ export default function SocialPostGenerator({
     setIsGenerating(true);
 
     setTimeout(() => {
-      const link = document.createElement("a");
-      link.download = `sarraf34_${format}_${(property.title || "ilan").substring(0, 20).replace(/[^a-zA-Z0-9]/g, "_")}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-      setIsGenerating(false);
+      try {
+        const link = document.createElement("a");
+        link.download = `sarraf34_${format}_${(property.title || "ilan").substring(0, 20).replace(/[^a-zA-Z0-9]/g, "_")}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        console.error("Canvas export error:", err);
+        // Fallback if canvas is tainted by CORS: render without image and export
+        drawBanner();
+        alert("Görsel indirildi. (Güvenlik engeli nedeniyle arka plan şablonuyla kaydedildi)");
+      } finally {
+        setIsGenerating(false);
+      }
     }, 200);
   };
 
@@ -291,7 +350,11 @@ export default function SocialPostGenerator({
                     key={t}
                     type="button"
                     onClick={() => setAccentText(t)}
-                    className="text-[11px] font-body px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-muted-foreground border border-border"
+                    className={`text-[11px] font-body px-2.5 py-1 rounded border transition-all ${
+                      accentText === t
+                        ? "bg-primary text-primary-foreground font-bold border-primary shadow-sm"
+                        : "bg-secondary hover:bg-secondary/80 text-muted-foreground border-border"
+                    }`}
                   >
                     {t}
                   </button>
