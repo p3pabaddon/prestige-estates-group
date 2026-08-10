@@ -25,10 +25,10 @@ const Auth = () => {
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Giriş yapıldı");
+        toast.success("Giriş yapıldı, panele yönlendiriliyorsunuz...");
         navigate("/admin", { replace: true });
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -37,8 +37,14 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        toast.success("Hesap oluşturuldu. E-postanızı onaylayın.");
-        setMode("login");
+        
+        if (data.session) {
+          toast.success("Hesabınız başarıyla oluşturuldu! Panele yönlendiriliyorsunuz...");
+          navigate("/admin", { replace: true });
+        } else {
+          toast.success("Kayıt oluşturuldu! Supabase üzerinde e-posta onayı aktifse lütfen onaylayın veya yönetici onayıyla giriş yapın.");
+          setMode("login");
+        }
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Bir hata oluştu");

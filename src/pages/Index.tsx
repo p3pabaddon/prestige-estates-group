@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
-import { ArrowRight, Eye, Shield, Star, TrendingUp } from "lucide-react";
+import { ArrowRight, Eye, Shield, Star, TrendingUp, Building2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import ScrollReveal from "@/components/ScrollReveal";
 import ParallaxImage from "@/components/ParallaxImage";
@@ -22,6 +22,26 @@ import villaPool from "@/assets/villa-pool.jpg";
 import projectTower from "@/assets/project-tower.jpg";
 import office from "@/assets/office.jpg";
 
+interface PropertyDbRow {
+  id: string;
+  title: string;
+  rooms?: string | null;
+  price?: number | null;
+  currency?: string | null;
+  images?: string[] | null;
+  neighborhood?: string | null;
+  district?: string | null;
+  city?: string | null;
+  location?: string | null;
+  bathrooms?: number | null;
+  gross_m2?: number | null;
+  net_m2?: number | null;
+  tag?: string | null;
+  featured?: boolean | null;
+  listing_type?: string | null;
+  property_type?: string | null;
+}
+
 interface DisplayProperty {
   id?: string;
   image: string;
@@ -35,12 +55,6 @@ interface DisplayProperty {
   type: string;
 }
 
-const defaultFeaturedProperties: DisplayProperty[] = [
-  { image: penthouseInterior, title: "The Sovereign Penthouse", location: "Monte Carlo, Monaco", price: "€12,500,000", beds: 4, baths: 5, sqm: 420, tag: "Exclusive", type: "Penthouse" },
-  { image: waterfrontVilla, title: "Villa Aquamarine", location: "Cap Ferrat, France", price: "€8,900,000", beds: 6, baths: 7, sqm: 680, tag: "Waterfront", type: "Villa" },
-  { image: luxuryBuilding, title: "Obsidian Tower Residence", location: "Dubai Marina, UAE", price: "$5,200,000", beds: 3, baths: 4, sqm: 310, tag: "New Listing", type: "Apartment" },
-];
-
 const Index = () => {
   const { t } = useLanguage();
   const heroRef = useRef(null);
@@ -48,15 +62,19 @@ const Index = () => {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const [properties, setProperties] = useState<DisplayProperty[]>(defaultFeaturedProperties);
+  const [properties, setProperties] = useState<DisplayProperty[]>([]);
+  const [soldProperties, setSoldProperties] = useState<DisplayProperty[]>([]);
+  const [loadingProps, setLoadingProps] = useState(true);
 
   useEffect(() => {
     const fetchFeatured = async () => {
+      setLoadingProps(true);
       try {
         const { data, error } = await supabase
           .from("properties")
           .select("*")
           .eq("published", true)
+          .neq("status", "satildi")
           .order("featured", { ascending: false })
           .order("created_at", { ascending: false })
           .limit(6);
@@ -67,7 +85,7 @@ const Index = () => {
         }
 
         if (data && data.length > 0) {
-          const mapped: DisplayProperty[] = data.map((item: any) => {
+          const mapped: DisplayProperty[] = (data as PropertyDbRow[]).map((item) => {
             const numBeds = parseInt(item.rooms?.split("+")[0] || "3", 10) || 3;
             const formattedPrice = item.price
               ? item.currency === "TRY"
@@ -97,9 +115,56 @@ const Index = () => {
             };
           });
           setProperties(mapped);
+        } else {
+          setProperties([]);
+        }
+
+        // Fetch sold properties for preview section
+        const { data: soldData } = await supabase
+          .from("properties")
+          .select("*")
+          .eq("status", "satildi")
+          .order("updated_at", { ascending: false })
+          .limit(3);
+
+        if (soldData && soldData.length > 0) {
+          const mappedSold: DisplayProperty[] = (soldData as PropertyDbRow[]).map((item) => {
+            const numBeds = parseInt(item.rooms?.split("+")[0] || "3", 10) || 3;
+            const formattedPrice = item.price
+              ? item.currency === "TRY"
+                ? formatTRY(item.price)
+                : `${item.currency === "EUR" ? "€" : "$"}${Number(item.price).toLocaleString("en-US")}`
+              : "Fiyat Belirtilmedi";
+
+            const primaryImg =
+              (item.images && item.images.length > 0 && item.images[0]) ||
+              heroVilla;
+
+            const loc = [item.district, item.city]
+              .filter(Boolean)
+              .join(", ") || item.location || "İstanbul";
+
+            return {
+              id: item.id,
+              image: primaryImg,
+              title: item.title,
+              location: loc,
+              price: formattedPrice,
+              beds: numBeds,
+              baths: item.bathrooms || 1,
+              sqm: item.gross_m2 || item.net_m2 || 120,
+              tag: "SATILDI",
+              type: item.property_type || "Daire",
+            };
+          });
+          setSoldProperties(mappedSold);
+        } else {
+          setSoldProperties([]);
         }
       } catch (err) {
-        console.error("Failed to load featured properties", err);
+        console.error("Failed to load properties", err);
+      } finally {
+        setLoadingProps(false);
       }
     };
 
@@ -107,10 +172,10 @@ const Index = () => {
   }, []);
 
   const stats = [
-    { value: "€2.4B+", label: t("hero.portfolio") },
-    { value: "340+", label: t("hero.sold") },
-    { value: "12", label: t("hero.markets") },
-    { value: "98%", label: t("hero.satisfaction") },
+    { value: "₺1.5Mr+", label: t("hero.portfolio") },
+    { value: "500+", label: t("hero.sold") },
+    { value: "15+", label: t("hero.markets") },
+    { value: "%98", label: t("hero.satisfaction") },
   ];
 
   const pillars = [
@@ -213,20 +278,58 @@ const Index = () => {
       <section className="section-padding">
         <div className="container-luxury">
           <SectionHeading subtitle={t("featured.subtitle")} title={t("featured.title")} description={t("featured.desc")} />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {properties.map((p, i) => (
-              <ScrollReveal key={p.id || p.title + i} delay={i * 0.15}>
-                <PropertyCard {...p} />
-              </ScrollReveal>
-            ))}
-          </div>
-          <ScrollReveal>
-            <div className="text-center mt-12">
-              <Link to="/properties" className="luxury-btn-outline">
-                {t("featured.viewAll")} <ArrowRight size={14} className="ml-2" />
-              </Link>
+
+          {loadingProps ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="font-body text-sm">İlanlar yükleniyor...</p>
             </div>
-          </ScrollReveal>
+          ) : properties.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {properties.map((p, i) => (
+                  <ScrollReveal key={p.id || p.title + i} delay={i * 0.15}>
+                    <PropertyCard {...p} />
+                  </ScrollReveal>
+                ))}
+              </div>
+              <ScrollReveal>
+                <div className="text-center mt-12">
+                  <Link to="/properties" className="luxury-btn-outline">
+                    {t("featured.viewAll")} <ArrowRight size={14} className="ml-2" />
+                  </Link>
+                </div>
+              </ScrollReveal>
+            </>
+          ) : (
+            <ScrollReveal>
+              <div className="luxury-card p-10 md:p-14 text-center max-w-2xl mx-auto border-primary/30 bg-secondary/30">
+                <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-6">
+                  <Building2 size={26} className="text-primary" />
+                </div>
+                <h3 className="font-display text-2xl md:text-3xl text-foreground mb-3">
+                  Portföyümüz Güncelleniyor
+                </h3>
+                <p className="text-muted-foreground font-body text-sm md:text-base leading-relaxed mb-8">
+                  Sarraf 34 güncel gayrimenkul ve inşaat projelerimiz sisteme aktarılmaktadır. Çok yakında seçkin portföyümüzle yayındayız.
+                  Aradığınız kriterlerdeki konut veya ticari mülk taleplerinizi iletmek için bizimle doğrudan iletişime geçebilirsiniz.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Link to="/contact" className="luxury-btn-primary">
+                    {t("hero.consult")} <ArrowRight size={14} className="ml-2" />
+                  </Link>
+                  <a
+                    href="https://wa.me/905302503252"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="luxury-btn-outline"
+                  >
+                    WhatsApp ile Danışın
+                  </a>
+                </div>
+              </div>
+            </ScrollReveal>
+          )}
         </div>
       </section>
 
@@ -289,40 +392,40 @@ const Index = () => {
       </section>
 
       {/* ===== SOLD PREVIEW ===== */}
-      <section className="section-padding bg-secondary">
-        <div className="container-luxury">
-          <SectionHeading subtitle={t("sold.subtitle")} title={t("sold.title")} description={t("sold.desc")} />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { image: luxuryInterior, title: "Villa Serenità", location: "Lake Como, Italy", price: "€6,800,000" },
-              { image: villaPool, title: "Horizon Estate", location: "Mykonos, Greece", price: "€4,200,000" },
-              { image: penthouseInterior, title: "The Pinnacle Suite", location: "London, UK", price: "£9,500,000" },
-            ].map((p, i) => (
-              <ScrollReveal key={p.title} delay={i * 0.1}>
-                <Link to="/sold" className="luxury-card group block">
-                  <div className="relative overflow-hidden aspect-[4/3]">
-                    <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-background/40" />
-                    <span className="absolute top-4 left-4 px-3 py-1 text-[10px] tracking-[0.2em] uppercase font-body font-medium bg-primary text-primary-foreground">{t("sold.tag")}</span>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="font-display text-lg text-foreground">{p.title}</h3>
-                    <p className="text-muted-foreground font-body text-xs tracking-wider uppercase mt-1">{p.location}</p>
-                    <p className="font-display text-lg text-primary mt-3">{p.price}</p>
-                  </div>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-          <ScrollReveal>
-            <div className="text-center mt-12">
-              <Link to="/sold" className="luxury-btn-outline">
-                {t("sold.cta")} <ArrowRight size={14} className="ml-2" />
-              </Link>
+      {soldProperties.length > 0 && (
+        <section className="section-padding bg-secondary">
+          <div className="container-luxury">
+            <SectionHeading subtitle={t("sold.subtitle")} title={t("sold.title")} description={t("sold.desc")} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {soldProperties.map((p, i) => (
+                <ScrollReveal key={p.id || p.title} delay={i * 0.1}>
+                  <Link to={p.id ? `/ilan/${p.id}` : "/sold"} className="luxury-card group block overflow-hidden">
+                    <div className="relative overflow-hidden aspect-[4/3]">
+                      <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-background/40" />
+                      <span className="absolute top-4 left-4 px-3 py-1 text-[10px] tracking-[0.2em] uppercase font-body font-bold bg-amber-500 text-black shadow-md rounded-sm">
+                        SATILDI
+                      </span>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">{p.title}</h3>
+                      <p className="text-muted-foreground font-body text-xs tracking-wider uppercase mt-1">{p.location}</p>
+                      <p className="font-display text-lg text-primary mt-3 font-semibold">{p.price}</p>
+                    </div>
+                  </Link>
+                </ScrollReveal>
+              ))}
             </div>
-          </ScrollReveal>
-        </div>
-      </section>
+            <ScrollReveal>
+              <div className="text-center mt-12">
+                <Link to="/sold" className="luxury-btn-outline">
+                  {t("sold.cta") || "Tüm Tamamlanan Satışları Gör"} <ArrowRight size={14} className="ml-2" />
+                </Link>
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
 
       {/* ===== FINAL CTA ===== */}
       <section className="relative overflow-hidden">

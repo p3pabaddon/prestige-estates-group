@@ -25,7 +25,10 @@ import AdminProperties from "./pages/admin/AdminProperties.tsx";
 import AdminCustomers from "./pages/admin/AdminCustomers.tsx";
 import CustomerDetail from "./pages/admin/CustomerDetail.tsx";
 import AdminReminders from "./pages/admin/AdminReminders.tsx";
+import AdminContactRequests from "./pages/admin/AdminContactRequests.tsx";
+import AdminTeam from "./pages/admin/AdminTeam.tsx";
 import RequireAuth from "./components/admin/RequireAuth.tsx";
+import ScrollToTop from "./components/ScrollToTop.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
@@ -52,10 +55,13 @@ const AnimatedRoutes = () => {
         <Route path="/sold" element={<Sold />} />
         <Route path="/giris" element={<Auth />} />
         <Route path="/admin" element={<RequireAuth><Dashboard /></RequireAuth>} />
+        <Route path="/admin/formlar" element={<RequireAuth><AdminContactRequests /></RequireAuth>} />
+        <Route path="/admin/talepler" element={<RequireAuth><AdminContactRequests /></RequireAuth>} />
         <Route path="/admin/ilanlar" element={<RequireAuth><AdminProperties /></RequireAuth>} />
         <Route path="/admin/musteriler" element={<RequireAuth><AdminCustomers /></RequireAuth>} />
         <Route path="/admin/musteriler/:id" element={<RequireAuth><CustomerDetail /></RequireAuth>} />
         <Route path="/admin/hatirlatmalar" element={<RequireAuth><AdminReminders /></RequireAuth>} />
+        <Route path="/admin/personel" element={<RequireAuth><AdminTeam /></RequireAuth>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -70,6 +76,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <AuthProvider>
               <AnimatedRoutes />
             </AuthProvider>

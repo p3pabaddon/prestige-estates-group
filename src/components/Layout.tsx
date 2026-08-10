@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import PageTransition from "./PageTransition";
 import ScrollProgress from "./ScrollProgress";
 import FloatingButtons from "./FloatingButtons";
+import CookieConsent from "./CookieConsent";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
@@ -15,6 +16,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </PageTransition>
       <Footer />
       <FloatingButtons />
+      <CookieConsent />
     </div>
   );
 };

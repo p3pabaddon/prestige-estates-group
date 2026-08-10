@@ -19,19 +19,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUserRole = async (userId: string) => {
+      try {
+        // 1. Check user_roles
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        // 2. Check profiles for is_admin flag or role
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("role, is_admin")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (
+          profileData?.is_admin === true ||
+          profileData?.role === "admin" ||
+          roleData?.role === "admin"
+        ) {
+          setRole("admin");
+        } else if (roleData?.role === "agent" || profileData?.role === "agent") {
+          setRole("agent");
+        } else {
+          setRole("agent");
+        }
+      } catch (err) {
+        console.error("Error fetching user role:", err);
+        setRole("agent");
+      }
+    };
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
       setLoading(false);
       if (s?.user) {
-        setTimeout(async () => {
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", s.user.id)
-            .maybeSingle();
-          setRole(data?.role ?? null);
-        }, 0);
+        fetchUserRole(s.user.id);
       } else {
         setRole(null);
       }
@@ -41,6 +67,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
+      if (data.session?.user) {
+        fetchUserRole(data.session.user.id);
+      }
     });
 
     return () => sub.subscription.unsubscribe();
