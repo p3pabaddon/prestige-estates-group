@@ -8,7 +8,8 @@ import LocationPickerMap from "@/components/LocationPickerMap";
 import { generatePropertyPDF } from "@/lib/pdfBrochure";
 import { sharePropertyOnWhatsApp } from "@/lib/whatsappShare";
 import PropertyImportModal from "@/components/admin/PropertyImportModal";
-import { Plus, Pencil, Trash2, X, Loader2, Sparkles, FileText, Globe, ArrowRight, MapPin, MessageCircle, Download } from "lucide-react";
+import SocialPostGenerator from "@/components/SocialPostGenerator";
+import { Plus, Pencil, Trash2, X, Loader2, Sparkles, FileText, Globe, ArrowRight, MapPin, MessageCircle, Download, Instagram } from "lucide-react";
 
 interface Property {
   id: string;
@@ -204,6 +205,7 @@ const AdminProperties = () => {
   };
 
   const [smartImportOpen, setSmartImportOpen] = useState(false);
+  const [selectedSocialProperty, setSelectedSocialProperty] = useState<Property | null>(null);
   const [pdfGeneratingId, setPdfGeneratingId] = useState<string | null>(null);
 
   const handleDownloadPDF = async (p: Property) => {
@@ -408,30 +410,39 @@ const AdminProperties = () => {
                   </select>
                 </div>
 
-                {/* PDF and WhatsApp Actions */}
-                <div className="grid grid-cols-2 gap-2">
+                {/* PDF, WhatsApp and Instagram Actions */}
+                <div className="grid grid-cols-3 gap-1.5">
                   <button
                     type="button"
                     onClick={() => handleWhatsAppShare(p)}
-                    className="border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 py-1.5 font-body text-[10px] tracking-wider uppercase font-semibold flex items-center justify-center gap-1 rounded-sm transition-colors"
+                    className="border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 py-1.5 font-body text-[9px] tracking-wider uppercase font-semibold flex items-center justify-center gap-1 rounded-sm transition-colors"
                     title="Müşteriye WhatsApp Formatında Paylaş"
                   >
-                    <MessageCircle size={12} /> WhatsApp Paylaş
+                    <MessageCircle size={11} /> WhatsApp
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleDownloadPDF(p)}
                     disabled={pdfGeneratingId === p.id}
-                    className="border border-primary/40 bg-primary/5 hover:bg-primary/15 text-primary py-1.5 font-body text-[10px] tracking-wider uppercase font-semibold flex items-center justify-center gap-1 rounded-sm transition-colors disabled:opacity-60"
+                    className="border border-primary/40 bg-primary/5 hover:bg-primary/15 text-primary py-1.5 font-body text-[9px] tracking-wider uppercase font-semibold flex items-center justify-center gap-1 rounded-sm transition-colors disabled:opacity-60"
                     title="Tek Tıkla PDF Portföy Broşürü İndir"
                   >
                     {pdfGeneratingId === p.id ? (
-                      <Loader2 size={12} className="animate-spin" />
+                      <Loader2 size={11} className="animate-spin" />
                     ) : (
-                      <Download size={12} />
+                      <Download size={11} />
                     )}
                     PDF Sunum
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSocialProperty(p)}
+                    className="border border-pink-500/40 bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 py-1.5 font-body text-[9px] tracking-wider uppercase font-semibold flex items-center justify-center gap-1 rounded-sm transition-colors"
+                    title="Instagram Post & Story Görseli Üret"
+                  >
+                    <Instagram size={11} /> İlan Postu
                   </button>
                 </div>
 
@@ -699,6 +710,15 @@ const AdminProperties = () => {
         onClose={() => setSmartImportOpen(false)}
         onSuccess={load}
       />
+
+      {/* Social Post & Story Generator Modal */}
+      {selectedSocialProperty && (
+        <SocialPostGenerator
+          isOpen={!!selectedSocialProperty}
+          onClose={() => setSelectedSocialProperty(null)}
+          property={selectedSocialProperty}
+        />
+      )}
     </AdminLayout>
   );
 };

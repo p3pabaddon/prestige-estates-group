@@ -494,63 +494,33 @@ const PropertyDetails = () => {
             </nav>
 
             <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-              {/* WhatsApp Share */}
-              <button
-                type="button"
-                onClick={handleWhatsAppDirectShare}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-emerald-600/15 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/25 transition-colors text-xs font-body"
-                title="WhatsApp ile Paylaş"
-              >
-                <MessageCircle size={13} />
-                <span className="hidden sm:inline">WhatsApp</span> Paylaş
-              </button>
-
-              {/* PDF Presentation Download */}
-              <button
-                type="button"
-                onClick={handleDownloadPDF}
-                disabled={isPdfGenerating}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-colors text-xs font-body font-medium disabled:opacity-60"
-                title="Tek Tıkla PDF Sunum Broşürü İndir"
-              >
-                {isPdfGenerating ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
-                <span className="hidden sm:inline">PDF</span> Sunum
-              </button>
-
-              {/* Social Media Post & Story Generator */}
-              <button
-                type="button"
-                onClick={() => setIsSocialPostOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-pink-500/10 text-pink-400 border border-pink-500/30 hover:bg-pink-500/20 transition-colors text-xs font-body font-medium"
-                title="Instagram Post & Story Görseli Üret"
-              >
-                <Instagram size={13} />
-                <span>İlan Postu</span>
-              </button>
-
               {/* Price Drop Alert Trigger */}
               <button
                 type="button"
                 onClick={() => setIsPriceAlertOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 transition-colors text-xs font-body font-medium"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-sm bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 transition-colors text-xs font-body font-medium"
                 title="Fiyatı Düşünce Haber Ver"
               >
                 <BellRing size={13} />
-                <span className="hidden md:inline">Fiyat Takibi</span>
+                <span>Fiyat Takibi</span>
               </button>
 
+              {/* Share Button */}
               <button
                 type="button"
                 onClick={handleShare}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-card hover:bg-secondary border border-border/80 text-xs font-body text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-sm bg-card hover:bg-secondary border border-border/80 text-xs font-body text-muted-foreground hover:text-foreground transition-colors"
                 title="Paylaş"
               >
                 <Share2 size={13} />
+                <span>Paylaş</span>
               </button>
+
+              {/* Favorite Button */}
               <button
                 type="button"
                 onClick={() => setIsLiked(!isLiked)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm border text-xs font-body transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-sm border text-xs font-body transition-colors ${
                   isLiked
                     ? "border-rose-500/40 bg-rose-500/10 text-rose-400"
                     : "border-border/80 bg-card hover:bg-secondary text-muted-foreground hover:text-foreground"

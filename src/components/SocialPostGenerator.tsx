@@ -31,153 +31,11 @@ export default function SocialPostGenerator({
   const [selectedImgIndex, setSelectedImgIndex] = useState<number>(0);
   const [accentText, setAccentText] = useState<string>("FIRSAT PORTFÖY");
   const [isGenerating, setIsGenerating] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  if (!isOpen) return null;
-
-  const validImages = property.images && property.images.length > 0
-    ? property.images
-    : ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85"];
-
-  const currentImg = validImages[selectedImgIndex] || validImages[0];
-
-  const priceText = property.price ? formatTRY(property.price) : "Fiyat Sorunuz";
-  const locationText = [property.district, property.city || "İstanbul"].filter(Boolean).join(" / ");
-  const specsText = [
-    property.rooms ? `${property.rooms} Oda` : null,
-    property.gross_m2 ? `${property.gross_m2} m²` : null,
-    property.property_type || "Daire",
-  ].filter(Boolean).join("  •  ");
-
-  // Render to canvas
-  const drawBanner = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const width = format === "post" ? 1080 : 1080;
-    const height = format === "post" ? 1080 : 1920;
-
-    canvas.width = width;
-    canvas.height = height;
-
-    const img = new window.Image();
-    img.crossOrigin = "anonymous";
-    img.src = currentImg;
-
-    img.onload = () => {
-      // 1. Draw Image centered with cover fit
-      const scale = Math.max(width / img.width, height / img.height);
-      const x = width / 2 - (img.width / 2) * scale;
-      const y = height / 2 - (img.height / 2) * scale;
-      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-
-      // 2. Luxury Gradient Overlay
-      const grad = ctx.createLinearGradient(0, 0, 0, height);
-      grad.addColorStop(0, "rgba(5, 5, 8, 0.85)");
-      grad.addColorStop(0.2, "rgba(5, 5, 8, 0.3)");
-      grad.addColorStop(0.6, "rgba(5, 5, 8, 0.5)");
-      grad.addColorStop(1, "rgba(5, 5, 8, 0.95)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-
-      // 3. Top Header: Sarraf 34 Branding
-      ctx.fillStyle = "#D4AF37"; // Gold
-      ctx.font = "bold 32px 'Cinzel', serif, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("SARRAF 34", width / 2, format === "post" ? 80 : 140);
-
-      ctx.fillStyle = "#E5E7EB";
-      ctx.font = "500 16px sans-serif";
-      ctx.letterSpacing = "4px";
-      ctx.fillText("İNŞAAT & GAYRİMENKUL", width / 2, format === "post" ? 115 : 175);
-
-      // 4. Accent Tag Badge (Top Left / Right)
-      if (accentText) {
-        ctx.fillStyle = "#D4AF37";
-        const tagWidth = 240;
-        const tagHeight = 44;
-        const tagX = width / 2 - tagWidth / 2;
-        const tagY = format === "post" ? 145 : 210;
-
-        ctx.fillRect(tagX, tagY, tagWidth, tagHeight);
-        ctx.fillStyle = "#090A0F";
-        ctx.font = "bold 16px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(accentText.toUpperCase(), width / 2, tagY + 28);
-      }
-
-      // 5. Bottom Info Box
-      const boxY = format === "post" ? height - 340 : height - 520;
-
-      // Inner Gold Border Line
-      ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(50, boxY, width - 100, format === "post" ? 280 : 440);
-
-      // Semi-transparent background for text box
-      ctx.fillStyle = "rgba(10, 10, 15, 0.85)";
-      ctx.fillRect(52, boxY + 2, width - 104, (format === "post" ? 280 : 440) - 4);
-
-      // Property Title
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "bold 34px sans-serif";
-      ctx.textAlign = "center";
-      const titleLines = wrapText(ctx, property.title, width - 140);
-      titleLines.slice(0, 2).forEach((line, index) => {
-        ctx.fillText(line, width / 2, boxY + 60 + index * 42);
-      });
-
-      // Location & Specs
-      ctx.fillStyle = "#9CA3AF";
-      ctx.font = "20px sans-serif";
-      ctx.fillText(locationText.toUpperCase(), width / 2, boxY + 145);
-
-      ctx.fillStyle = "#D1D5DB";
-      ctx.font = "600 22px sans-serif";
-      ctx.fillText(specsText, width / 2, boxY + 180);
-
-      // Gold Price Banner
-      ctx.fillStyle = "#D4AF37";
-      ctx.font = "bold 44px sans-serif";
-      ctx.fillText(priceText, width / 2, boxY + 245);
-
-      // Contact & Footer for Story
-      if (format === "story") {
-        ctx.fillStyle = "#E5E7EB";
-        ctx.font = "bold 22px sans-serif";
-        ctx.fillText("📞 0532 552 34 34", width / 2, boxY + 330);
-
-        ctx.fillStyle = "#9CA3AF";
-        ctx.font = "16px sans-serif";
-        ctx.fillText("www.sarraf34.com", width / 2, boxY + 365);
-      }
-    };
-  };
-
-  function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-    const words = text.split(" ");
-    const lines: string[] = [];
-    let currentLine = words[0] || "";
-
-    for (let i = 1; i < words.length; i++) {
-      const word = words[i];
-      const width = ctx.measureText(currentLine + " " + word).width;
-      if (width < maxWidth) {
-        currentLine += " " + word;
-      } else {
-        lines.push(currentLine);
-        currentLine = word;
-      }
-    }
-    lines.push(currentLine);
-    return lines;
-  }
-
   useEffect(() => {
-    drawBanner();
-  }, [format, selectedImgIndex, accentText, currentImg]);
+    if (isOpen) {
+      drawBanner();
+    }
+  }, [format, selectedImgIndex, accentText, currentImg, isOpen]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -192,6 +50,8 @@ export default function SocialPostGenerator({
       setIsGenerating(false);
     }, 200);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-md flex items-center justify-center p-4">
