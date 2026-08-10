@@ -831,6 +831,7 @@ const PropertyDetails = () => {
                     src={currentMainPhoto}
                     alt=""
                     className="w-full h-full object-cover blur-3xl scale-125"
+                    referrerPolicy="no-referrer"
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = heroVilla;
                     }}
@@ -856,6 +857,7 @@ const PropertyDetails = () => {
                       transition={{ duration: 0.2 }}
                       className="max-h-full max-w-full object-contain rounded-md shadow-2xl z-10"
                       style={{ imageRendering: "-webkit-optimize-contrast" }}
+                      referrerPolicy="no-referrer"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src = heroVilla;
                       }}
@@ -923,6 +925,7 @@ const PropertyDetails = () => {
                           src={img}
                           alt=""
                           className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src = heroVilla;
                           }}

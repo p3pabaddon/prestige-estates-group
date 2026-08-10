@@ -80,21 +80,11 @@ export async function generatePropertyPDF(property: PropertyBrochureData): Promi
   const listingBadge = (property.listing_type === "kiralik" ? "Kiralık" : "Satılık") + " " + (property.property_type || "Konut");
   const cleanDesc = (property.description || "").replace(/<[^>]*>?/gm, "").trim();
 
-  // Load images as base64
-  const mainImgUrl = property.images?.[0];
-  let mainImgB64: string | null = null;
-  const galleryB64: string[] = [];
-
-  if (mainImgUrl) {
-    mainImgB64 = await imageToBase64(mainImgUrl);
-  }
-
-  // Load up to 4 gallery images (skip the first one which is already main)
-  const galleryUrls = (property.images || []).slice(1, 5);
-  for (const url of galleryUrls) {
-    const b64 = await imageToBase64(url);
-    if (b64) galleryB64.push(b64);
-  }
+  // Images (direct URLs with no-referrer policy to avoid CORS/hotlinking blocks)
+  const fallbackImg = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&auto=format&fit=crop&q=80";
+  const rawImages = (property.images || []).filter(u => u && typeof u === "string");
+  const mainImgUrl = rawImages[0] || fallbackImg;
+  const galleryUrls = rawImages.slice(1, 5);
 
   const specs = [
     { label: "Brüt Alan", value: property.gross_m2 ? `${property.gross_m2} m²` : "—" },
@@ -109,9 +99,9 @@ export async function generatePropertyPDF(property: PropertyBrochureData): Promi
     { label: "Krediye Uygunluk", value: property.credit_eligible !== false ? "Evet / Uygun" : "Hayır" },
   ];
 
-  const galleryHtml = galleryB64.length > 0 ? `
-    <div style="display:grid;grid-template-columns:repeat(${Math.min(galleryB64.length, 4)},1fr);gap:8px;margin-top:14px;">
-      ${galleryB64.map(b => `<img src="${b}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" />`).join("")}
+  const galleryHtml = galleryUrls.length > 0 ? `
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(galleryUrls.length, 4)},1fr);gap:8px;margin-top:14px;">
+      ${galleryUrls.map(u => `<img src="${escapeHtml(u)}" referrerpolicy="no-referrer" onerror="this.src='${fallbackImg}'" style="width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" />`).join("")}
     </div>
   ` : "";
 
@@ -367,10 +357,7 @@ export async function generatePropertyPDF(property: PropertyBrochureData): Promi
 
       <!-- Main Image -->
       <div class="main-image-container">
-        ${mainImgB64 
-          ? `<img src="${mainImgB64}" alt="Ana Fotoğraf" />` 
-          : `<div class="no-image">Fotoğraf Yüklenemedi</div>`
-        }
+        <img src="${escapeHtml(mainImgUrl)}" referrerpolicy="no-referrer" onerror="this.src='${fallbackImg}'" alt="Ana Fotoğraf" />
       </div>
 
       ${galleryHtml}

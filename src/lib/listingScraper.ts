@@ -93,6 +93,12 @@ export function upgradeToHighResImageUrl(url: string): string {
   if (u.includes("shbdn.com") || u.includes("sahibinden")) {
     u = u.replace(/\/(thmb|x5|s|m|l|preview|thumb|thumbnail)_/gi, "/big_");
     u = u.replace(/\/photos\/([0-9a-zA-Z_/]+)\/(thmb|x5|s|m|l|preview)_/gi, "/photos/$1/big_");
+    const parts = u.split("/");
+    const fileName = parts[parts.length - 1];
+    if (fileName && !fileName.startsWith("big_") && (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".webp") || fileName.endsWith(".png"))) {
+      parts[parts.length - 1] = "big_" + fileName;
+      u = parts.join("/");
+    }
   }
 
   // 2. Emlakjet HD resolution upgrade

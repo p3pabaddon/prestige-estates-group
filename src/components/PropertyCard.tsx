@@ -47,6 +47,7 @@ const PropertyCard = ({
           <img
             src={image || "/placeholder.svg"}
             alt={title}
+            referrerPolicy="no-referrer"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src =
                 "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";

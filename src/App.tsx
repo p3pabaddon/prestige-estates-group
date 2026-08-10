@@ -43,7 +43,11 @@ const AnimatedRoutes = () => {
         <Route path="/ilanlar" element={<Properties />} />
         <Route path="/property-details" element={<PropertyDetails />} />
         <Route path="/property-details/:id" element={<PropertyDetails />} />
+        <Route path="/prcperty-details/:id" element={<PropertyDetails />} />
+        <Route path="/property/:id" element={<PropertyDetails />} />
+        <Route path="/detail/:id" element={<PropertyDetails />} />
         <Route path="/ilan/:id" element={<PropertyDetails />} />
+        <Route path="/ilan-detay/:id" element={<PropertyDetails />} />
         <Route path="/about" element={<About />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/services" element={<Services />} />
