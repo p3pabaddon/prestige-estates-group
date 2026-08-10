@@ -27,9 +27,16 @@ export function slugifyTurkish(text: string | null | undefined): string {
  */
 export function getCleanListingNumber(p: { id?: string; ilan_no?: string | null } | null | undefined): string {
   if (!p) return "1000000";
+  
   if (p.ilan_no && String(p.ilan_no).trim()) {
-    return String(p.ilan_no).trim();
+    const trimmed = String(p.ilan_no).trim();
+    // If it's a UUID, ignore it and fall back to hash generation
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed);
+    if (!isUUID) {
+      return trimmed;
+    }
   }
+
   if (p.id) {
     const hex = p.id.replace(/[^0-9a-f]/gi, "").slice(0, 7);
     const num = parseInt(hex, 16);
@@ -76,7 +83,11 @@ export async function findPropertyByRouteParam(param: string | undefined): Promi
     // 1. Check for full UUID in string
     const uuidMatch = cleaned.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     if (uuidMatch) {
-      const { data } = await supabase.from("properties").select("*").eq("id", uuidMatch[0]).maybeSingle();
+      const { data } = await supabase
+        .from("properties")
+        .select("*")
+        .or(`id.eq.${uuidMatch[0]},ilan_no.eq.${uuidMatch[0]}`)
+        .maybeSingle();
       if (data) return data;
     }
 
