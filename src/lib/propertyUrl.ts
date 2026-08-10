@@ -74,49 +74,64 @@ export function getPropertyDetailUrl(property: {
  * - Clean 7-digit listing number (e.g. 5718313)
  * - Sahibinden ilan_no (e.g. 1328101220)
  * - Legacy UUID (e.g. 7414629c-9f65-431c-af5c-f98864496d92)
+ * - Title slug
  */
 export async function findPropertyByRouteParam(param: string | undefined): Promise<any | null> {
   if (!param) return null;
   const cleaned = decodeURIComponent(param).trim();
 
   try {
-    // 1. Check for full UUID in string
+    // 1. Check for full UUID match in parameter
     const uuidMatch = cleaned.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     if (uuidMatch) {
-      const { data } = await supabase
-        .from("properties")
-        .select("*")
-        .or(`id.eq.${uuidMatch[0]},ilan_no.eq.${uuidMatch[0]}`)
-        .maybeSingle();
+      const targetUuid = uuidMatch[0];
+      // Directly query by ID (ID column is guaranteed to exist)
+      const { data } = await supabase.from("properties").select("*").eq("id", targetUuid).maybeSingle();
       if (data) return data;
     }
 
-    // 2. Check for trailing numeric listing number (6 to 12 digits, e.g. 5718313 or 1328101220)
-    const numMatch = cleaned.match(/(\d{6,12})/);
-    if (numMatch) {
-      const targetNum = numMatch[1];
-      // A. Direct ilan_no match
-      const { data: ilanData } = await supabase.from("properties").select("*").eq("ilan_no", targetNum).maybeSingle();
-      if (ilanData) return ilanData;
-
-      // B. Match clean listing number or ID prefix
-      const { data: allProps } = await supabase.from("properties").select("*");
-      if (allProps && allProps.length > 0) {
-        const match = allProps.find(
-          (p) => getCleanListingNumber(p) === targetNum || p.id.startsWith(targetNum) || String(p.ilan_no) === targetNum
-        );
-        if (match) return match;
-      }
+    // 2. Fetch all properties safely to do in-memory matching (avoids missing SQL column 400 errors)
+    const { data: allProps, error } = await supabase.from("properties").select("*");
+    if (error || !allProps || allProps.length === 0) {
+      console.error("Supabase property fetch error in findPropertyByRouteParam:", error);
+      return null;
     }
 
-    // 3. Fallback direct match attempt
-    const { data: directData } = await supabase
-      .from("properties")
-      .select("*")
-      .or(`id.eq.${cleaned},ilan_no.eq.${cleaned}`)
-      .maybeSingle();
+    // Extract any 6 to 12 digit number sequence from parameter
+    const numMatch = cleaned.match(/(\d{6,12})/);
+    const targetNum = numMatch ? numMatch[1] : null;
 
-    return directData || null;
+    // 3. Match against loaded properties
+    const match = allProps.find((p: any) => {
+      // Direct ID match
+      if (p.id === cleaned) return true;
+      
+      // UUID match
+      if (uuidMatch && p.id === uuidMatch[0]) return true;
+
+      // Safe ilan_no check
+      if (p.ilan_no && String(p.ilan_no).trim() === cleaned) return true;
+
+      // Numeric matches
+      if (targetNum) {
+        if (p.ilan_no && String(p.ilan_no).trim() === targetNum) return true;
+        if (getCleanListingNumber(p) === targetNum) return true;
+        if (p.id && p.id.replace(/-/g, "").startsWith(targetNum)) return true;
+        if (p.id && p.id.replace(/-/g, "").endsWith(targetNum)) return true;
+      }
+
+      return false;
+    });
+
+    if (match) return match;
+
+    // 4. Fallback match by Title Slug
+    const titleMatch = allProps.find((p: any) => {
+      const slug = slugifyTurkish(p.title);
+      return slug && slug.length > 5 && cleaned.includes(slug);
+    });
+
+    return titleMatch || null;
   } catch (err) {
     console.error("Error finding property by route param:", err);
     return null;
