@@ -38,7 +38,6 @@ import PropertyCard from "@/components/PropertyCard";
 import PropertyLocationMap from "@/components/PropertyLocationMap";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import { PriceDropAlertModal, ScheduleTourModal } from "@/components/PropertyInquiryModals";
-import SocialPostGenerator from "@/components/SocialPostGenerator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatTRY } from "@/lib/crm";
@@ -1425,25 +1424,6 @@ const PropertyDetails = () => {
         propertyPrice={Number(property.price) || null}
         propertyLocation={locationLabel}
         ilanNo={property.ilan_no}
-      />
-
-      <SocialPostGenerator
-        isOpen={isSocialPostOpen}
-        onClose={() => setIsSocialPostOpen(false)}
-        property={{
-          title: displayTitle,
-          price: Number(property.price) || null,
-          location: locationLabel,
-          district: property.district,
-          city: property.city,
-          rooms: property.rooms,
-          gross_m2: property.gross_m2,
-          property_type: property.property_type,
-          listing_type: property.listing_type,
-          tag: property.tag,
-          images: cleanImages,
-          ilan_no: property.ilan_no,
-        }}
       />
     </Layout>
   );
