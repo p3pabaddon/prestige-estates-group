@@ -358,6 +358,7 @@ const PropertyDetails = () => {
   }
 
   const numBeds = parseInt(property.rooms?.split("+")[0] || "3", 10) || 3;
+  const numBaths = property.bathrooms || 1;
   const locationLabel = [property.neighborhood, property.district, property.city]
     .filter(Boolean)
     .join(", ") || property.location || "İstanbul";
