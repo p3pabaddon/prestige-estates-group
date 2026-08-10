@@ -44,6 +44,7 @@ export interface PropertyDbRow {
 
 export interface PropertyItem {
   id?: string;
+  ilan_no?: string;
   image: string;
   title: string;
   location: string;
@@ -110,6 +111,7 @@ const Properties = () => {
 
             return {
               id: item.id,
+              ilan_no: (item as any).ilan_no || undefined,
               image: primaryImg,
               title: item.title,
               location: loc,

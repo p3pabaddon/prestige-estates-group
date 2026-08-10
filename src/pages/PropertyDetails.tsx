@@ -42,6 +42,7 @@ import SocialPostGenerator from "@/components/SocialPostGenerator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatTRY } from "@/lib/crm";
+import { parsePropertyParam } from "@/lib/propertyUrl";
 import { isLegitimatePropertyImage, upgradeToHighResImageUrl } from "@/lib/listingScraper";
 import { generatePropertyPDF } from "@/lib/pdfBrochure";
 import { sharePropertyOnWhatsApp } from "@/lib/whatsappShare";
@@ -130,7 +131,8 @@ function formatTurkishTitle(text: string | null | undefined): string {
 }
 
 const PropertyDetails = () => {
-  const { id } = useParams<{ id?: string }>();
+  const { id, slug } = useParams<{ id?: string; slug?: string }>();
+  const routeParam = slug || id;
   const { t } = useLanguage();
   const [property, setProperty] = useState<PropertyData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -212,18 +214,25 @@ const PropertyDetails = () => {
 
     const loadProperty = async () => {
       setLoading(true);
-      if (!id) {
+      if (!routeParam) {
         setNotFound(true);
         setLoading(false);
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from("properties")
-          .select("*")
-          .eq("id", id)
-          .maybeSingle();
+        const parsed = parsePropertyParam(routeParam);
+        let query = supabase.from("properties").select("*");
+
+        if (parsed.id) {
+          query = query.eq("id", parsed.id);
+        } else if (parsed.ilan_no) {
+          query = query.eq("ilan_no", parsed.ilan_no);
+        } else if (parsed.raw) {
+          query = query.or(`id.eq.${parsed.raw},ilan_no.eq.${parsed.raw}`);
+        }
+
+        const { data, error } = await query.maybeSingle();
 
         if (error || !data) {
           setNotFound(true);
@@ -263,8 +272,9 @@ const PropertyDetails = () => {
           .eq("published", true)
           .limit(3);
 
-        if (id) {
-          query.neq("id", id);
+        const currentId = property?.id || id;
+        if (currentId) {
+          query.neq("id", currentId);
         }
 
         const { data } = await query;

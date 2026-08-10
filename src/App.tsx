@@ -41,13 +41,15 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/properties" element={<Properties />} />
         <Route path="/ilanlar" element={<Properties />} />
-        <Route path="/property-details" element={<PropertyDetails />} />
+        {/* Property Details (Sahibinden & standard URL patterns) */}
+        <Route path="/ilan/:slug/detay" element={<PropertyDetails />} />
+        <Route path="/ilan/:slug" element={<PropertyDetails />} />
+        <Route path="/ilan-detay/:slug" element={<PropertyDetails />} />
         <Route path="/property-details/:id" element={<PropertyDetails />} />
+        <Route path="/property-details" element={<PropertyDetails />} />
         <Route path="/prcperty-details/:id" element={<PropertyDetails />} />
         <Route path="/property/:id" element={<PropertyDetails />} />
         <Route path="/detail/:id" element={<PropertyDetails />} />
-        <Route path="/ilan/:id" element={<PropertyDetails />} />
-        <Route path="/ilan-detay/:id" element={<PropertyDetails />} />
         <Route path="/about" element={<About />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/services" element={<Services />} />

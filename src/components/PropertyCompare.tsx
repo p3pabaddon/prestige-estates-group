@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Bed, Bath, Maximize, ArrowRight, Check, Sparkles, MessageCircle, ExternalLink, Scale } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatTRY } from "@/lib/crm";
+import { getPropertyDetailUrl } from "@/lib/propertyUrl";
 
 export interface CompareProperty {
   id?: string;
@@ -162,7 +163,7 @@ const PropertyCompare = ({ items, onRemove, onClear }: PropertyCompareProps) => 
                             <div className="flex gap-2">
                               {p.id && (
                                 <Link
-                                  to={`/property-details/${p.id}`}
+                                  to={getPropertyDetailUrl({ id: p.id, title: p.title, property_type: p.type })}
                                   target="_blank"
                                   className="flex-1 py-1.5 text-[11px] font-body font-semibold rounded bg-secondary hover:bg-secondary/80 text-foreground border border-border flex items-center justify-center gap-1"
                                 >

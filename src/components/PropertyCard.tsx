@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Bed, Bath, Maximize, Plus, Check, MapPin } from "lucide-react";
+import { getPropertyDetailUrl } from "@/lib/propertyUrl";
 
 interface PropertyCardProps {
   id?: string;
+  ilan_no?: string;
   image: string;
   title: string;
   location: string;
@@ -13,6 +15,7 @@ interface PropertyCardProps {
   sqm: number;
   tag?: string;
   type: string;
+  listing_type?: string;
   isComparing?: boolean;
   onToggleCompare?: () => void;
   compareDisabled?: boolean;
@@ -20,6 +23,7 @@ interface PropertyCardProps {
 
 const PropertyCard = ({
   id,
+  ilan_no,
   image,
   title,
   location,
@@ -29,11 +33,18 @@ const PropertyCard = ({
   sqm,
   tag,
   type,
+  listing_type,
   isComparing,
   onToggleCompare,
   compareDisabled,
 }: PropertyCardProps) => {
-  const detailLink = id ? `/property-details/${id}` : "/property-details";
+  const detailLink = getPropertyDetailUrl({
+    id,
+    ilan_no,
+    title,
+    property_type: type,
+    listing_type: listing_type || (tag?.toLowerCase().includes("kiralık") ? "kiralik" : "satilik"),
+  });
 
   return (
     <motion.div

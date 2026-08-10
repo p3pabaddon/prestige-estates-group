@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPin, Navigation, Maximize2, ExternalLink, Bed, Bath, Maximize, Building2 } from "lucide-react";
 import { PropertyItem } from "@/pages/Properties";
+import { getPropertyDetailUrl } from "@/lib/propertyUrl";
 
 // Approximate coordinates for Istanbul districts to ensure every listing accurately appears in Istanbul
 const ISTANBUL_DISTRICT_COORDS: Record<string, [number, number]> = {
@@ -357,7 +358,7 @@ export default function IstanbulMap({
                     </div>
 
                     <Link
-                      to={`/property-details/${selectedProperty.id}`}
+                      to={getPropertyDetailUrl({ id: selectedProperty.id, title: selectedProperty.title, property_type: selectedProperty.property_type, listing_type: selectedProperty.listing_type })}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm"
                     >
                       <span>İncele</span>
