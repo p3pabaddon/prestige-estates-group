@@ -42,7 +42,7 @@ import SocialPostGenerator from "@/components/SocialPostGenerator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatTRY } from "@/lib/crm";
-import { parsePropertyParam } from "@/lib/propertyUrl";
+import { findPropertyByRouteParam } from "@/lib/propertyUrl";
 import { isLegitimatePropertyImage, upgradeToHighResImageUrl } from "@/lib/listingScraper";
 import { generatePropertyPDF } from "@/lib/pdfBrochure";
 import { sharePropertyOnWhatsApp } from "@/lib/whatsappShare";
@@ -221,20 +221,9 @@ const PropertyDetails = () => {
       }
 
       try {
-        const parsed = parsePropertyParam(routeParam);
-        let query = supabase.from("properties").select("*");
+        const data = await findPropertyByRouteParam(routeParam);
 
-        if (parsed.id) {
-          query = query.eq("id", parsed.id);
-        } else if (parsed.ilan_no) {
-          query = query.eq("ilan_no", parsed.ilan_no);
-        } else if (parsed.raw) {
-          query = query.or(`id.eq.${parsed.raw},ilan_no.eq.${parsed.raw}`);
-        }
-
-        const { data, error } = await query.maybeSingle();
-
-        if (error || !data) {
+        if (!data) {
           setNotFound(true);
           return;
         }
@@ -326,7 +315,7 @@ const PropertyDetails = () => {
 
     loadProperty();
     loadSimilar();
-  }, [id]);
+  }, [routeParam]);
 
   if (loading) {
     return (
