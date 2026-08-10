@@ -1318,15 +1318,6 @@ const PropertyDetails = () => {
                         <BellRing size={15} /> Fiyat Düşünce Haber Ver
                       </button>
 
-                      {/* Social Media Story Generator */}
-                      <button
-                        type="button"
-                        onClick={() => setIsSocialPostOpen(true)}
-                        className="w-full text-center flex items-center justify-center gap-2 py-2.5 px-4 rounded-sm border border-pink-500/30 bg-pink-500/5 text-pink-400 hover:bg-pink-500/15 font-body text-xs uppercase tracking-wider transition-colors"
-                      >
-                        <Instagram size={14} /> Sosyal Medya Postu Hazırla
-                      </button>
-
                       <a
                         href="tel:05302503252"
                         className="luxury-btn-outline w-full text-center flex items-center justify-center gap-2 py-3 text-xs"

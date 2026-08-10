@@ -47,7 +47,7 @@ export function PriceDropAlertModal({
         propertyPrice ? formatTRY(propertyPrice) : "Belirtilmedi"
       }. ${targetPrice ? `Hedef Bütçe: ${targetPrice} TL.` : ""} Bildirim Kanalı: ${channel.toUpperCase()}`;
 
-      // 1. Save to contact_requests
+      // Save to contact_requests (Gelen Formlar)
       const { error: reqError } = await supabase.from("contact_requests").insert({
         full_name: fullName.trim(),
         phone: phone.trim(),
@@ -56,17 +56,6 @@ export function PriceDropAlertModal({
         subject: `Fiyat Bildirimi: ${propertyTitle}`,
         message: message,
         status: "yeni",
-      });
-
-      // 2. Also register in customers for CRM tracking
-      await supabase.from("customers").insert({
-        full_name: fullName.trim(),
-        phone: phone.trim(),
-        email: email.trim() || null,
-        source: "Fiyat Takip Formu",
-        stage: "yeni",
-        property_id: propertyId,
-        notes: message,
       });
 
       if (reqError) {
@@ -247,7 +236,7 @@ export function ScheduleTourModal({
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [date, setDate] = useState("");
-  const [timeSlot, setTimeSlot] = useState("13:00 - 16:00 (Öğleden Sonra)");
+  const [timeSlot, setTimeSlot] = useState("12:00 - 13:00");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -266,8 +255,8 @@ export function ScheduleTourModal({
         ilanNo || propertyId
       }). Müşteri Notu: ${notes || "Yok"}`;
 
-      // 1. Insert contact request
-      await supabase.from("contact_requests").insert({
+      // Insert into contact_requests (Gelen Formlar)
+      const { error: reqError } = await supabase.from("contact_requests").insert({
         full_name: fullName.trim(),
         phone: phone.trim(),
         property_id: propertyId,
@@ -276,32 +265,10 @@ export function ScheduleTourModal({
         status: "yeni",
       });
 
-      // 2. Insert into CRM customer with new stage
-      const { data: customerData } = await supabase
-        .from("customers")
-        .insert({
-          full_name: fullName.trim(),
-          phone: phone.trim(),
-          source: "Web Randevu Formu",
-          stage: "yeni",
-          property_id: propertyId,
-          notes: message,
-        })
-        .select("id")
-        .single();
-
-      // 3. Create a reminder for the staff
-      if (customerData?.id) {
-        await supabase.from("reminders").insert({
-          customer_id: customerData.id,
-          title: `Randevu: ${fullName} - ${propertyTitle}`,
-          note: `Talep edilen zaman: ${date} (${timeSlot})`,
-          remind_at: new Date(date).toISOString(),
-        });
-      }
+      if (reqError) throw reqError;
 
       setSuccess(true);
-      toast.success("Randevu talebiniz danışmanımıza iletildi! En kısa sürede teyit için aranacaksınız.");
+      toast.success("Randevu talebiniz Gelen Formlar paneline iletildi!");
     } catch (err: any) {
       toast.error("Bir hata oluştu. WhatsApp üzerinden doğrudan randevu alabilirsiniz.");
     } finally {
@@ -409,9 +376,16 @@ export function ScheduleTourModal({
                     onChange={(e) => setTimeSlot(e.target.value)}
                     className="w-full bg-secondary border border-border px-3 py-2.5 text-foreground font-body text-xs rounded focus:outline-none focus:border-primary"
                   >
-                    <option value="10:00 - 12:00 (Sabah)">10:00 - 12:00 (Sabah)</option>
-                    <option value="13:00 - 16:00 (Öğleden Sonra)">13:00 - 16:00 (Öğle)</option>
-                    <option value="16:00 - 19:00 (Akşam)">16:00 - 19:00 (Akşam)</option>
+                    <option value="09:00 - 10:00">09:00 - 10:00</option>
+                    <option value="10:00 - 11:00">10:00 - 11:00</option>
+                    <option value="11:00 - 12:00">11:00 - 12:00</option>
+                    <option value="12:00 - 13:00">12:00 - 13:00</option>
+                    <option value="13:00 - 14:00">13:00 - 14:00</option>
+                    <option value="14:00 - 15:00">14:00 - 15:00</option>
+                    <option value="15:00 - 16:00">15:00 - 16:00</option>
+                    <option value="16:00 - 17:00">16:00 - 17:00</option>
+                    <option value="17:00 - 18:00">17:00 - 18:00</option>
+                    <option value="18:00 - 19:00">18:00 - 19:00</option>
                   </select>
                 </div>
               </div>
