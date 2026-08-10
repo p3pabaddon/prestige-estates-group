@@ -184,7 +184,7 @@ export default function SocialPostGenerator({
       if (format === "story") {
         ctx.fillStyle = "#E5E7EB";
         ctx.font = "bold 22px sans-serif";
-        ctx.fillText("📞 0532 552 34 34", width / 2, boxY + 335);
+        ctx.fillText("📞 0530 250 32 52", width / 2, boxY + 335);
 
         ctx.fillStyle = "#9CA3AF";
         ctx.font = "16px sans-serif";

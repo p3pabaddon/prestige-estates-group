@@ -263,7 +263,7 @@ export default function MortgageCalculator({
 
               <div className="pt-2">
                 <a
-                  href={`https://wa.me/905325523434?text=${encodeURIComponent(
+                  href={`https://wa.me/905302503252?text=${encodeURIComponent(
                     `Merhaba, "${propertyTitle || "İlan"}" için ${formatTRY(price)} tutarlı gayrimenkule ${termMonths} ay vadeli konut kredisi başvurusu ve anlaşmalı banka oranları hakkında bilgi almak istiyorum.`
                   )}`}
                   target="_blank"
@@ -335,7 +335,7 @@ export default function MortgageCalculator({
               </div>
 
               <a
-                href={`https://wa.me/905325523434?text=${encodeURIComponent(
+                href={`https://wa.me/905302503252?text=${encodeURIComponent(
                   `Merhaba, tapu devir masrafları ve alım-satım prosedürleri hakkında Sarraf 34 uzmanlarından ücretsiz danışmanlık talep ediyorum.`
                 )}`}
                 target="_blank"

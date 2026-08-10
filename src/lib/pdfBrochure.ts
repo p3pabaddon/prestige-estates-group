@@ -396,7 +396,7 @@ export async function generatePropertyPDF(property: PropertyBrochureData): Promi
       </div>
       <div class="footer-right">
         <div class="footer-agent">${escapeHtml(property.agent_name || "Yetkili Portföy Danışmanı")}</div>
-        <div class="footer-phone">Tel / WhatsApp: ${escapeHtml(property.agent_phone || "+90 532 552 34 34")}</div>
+        <div class="footer-phone">Tel / WhatsApp: ${escapeHtml(property.agent_phone || "+90 530 250 32 52")}</div>
         <div class="footer-cta">Randevu &amp; Portföy Sunumu İçin Arayınız</div>
       </div>
     </div>

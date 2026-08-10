@@ -67,7 +67,7 @@ ${propertyUrl}
 
 📞 *Detaylı Bilgi & Randevu Talebi:*
 ${agent}
-📱 Tel: +90 532 552 34 34
+📱 Tel: +90 530 250 32 52
 🌐 Web: sarraf34.com`;
 }
 

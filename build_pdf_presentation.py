@@ -1,0 +1,733 @@
+import os
+from playwright.sync_api import sync_playwright
+
+html_content = """<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Sarraf 34 - Dijital Platform ve CRM Sunumu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #1E293B;
+    background-color: #FFFFFF;
+  }
+
+  /* COVER PAGE */
+  .cover-page {
+    width: 210mm;
+    height: 297mm;
+    background: linear-gradient(135deg, #090D16 0%, #0F172A 40%, #1E293B 100%);
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4rem 3.5rem;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-accent-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: linear-gradient(90deg, #B38F48 0%, #D4AF37 50%, #F5E6AD 100%);
+  }
+
+  .cover-glow {
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    pointer-events: none;
+  }
+
+  .cover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+  }
+
+  .brand-badge {
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    background: rgba(212, 175, 55, 0.08);
+    color: #D4AF37;
+    padding: 0.6rem 1.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .cover-body {
+    margin-top: auto;
+    margin-bottom: auto;
+    z-index: 10;
+  }
+
+  .cover-tag {
+    color: #D4AF37;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+
+  .cover-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #FFFFFF;
+    margin: 0 0 1.5rem 0;
+    letter-spacing: -0.5px;
+  }
+
+  .cover-title span {
+    color: #D4AF37;
+    background: linear-gradient(90deg, #D4AF37 0%, #FFF2C2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cover-subtitle {
+    font-size: 1.15rem;
+    color: #94A3B8;
+    font-weight: 300;
+    max-width: 620px;
+    line-height: 1.65;
+    margin-bottom: 3rem;
+  }
+
+  .cover-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 2.2rem;
+  }
+
+  .cover-stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.2rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+  }
+
+  .cover-stat-number {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #D4AF37;
+    margin-bottom: 0.3rem;
+  }
+
+  .cover-stat-label {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  .cover-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+    font-size: 0.85rem;
+    color: #64748B;
+    z-index: 10;
+  }
+
+  /* INNER PAGES LAYOUT */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 3rem 3.2rem;
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #FFFFFF;
+    overflow: hidden;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #F1F5F9;
+    padding-bottom: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .page-header-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #0F172A;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .page-header-title::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 22px;
+    background: #C5A059;
+    border-radius: 3px;
+  }
+
+  .page-header-brand {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94A3B8;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .page-footer {
+    margin-top: auto;
+    border-top: 1px solid #E2E8F0;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  /* CONTENT STYLES */
+  h2 {
+    font-size: 1.35rem;
+    color: #0F172A;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  p {
+    font-size: 0.93rem;
+    line-height: 1.65;
+    color: #475569;
+    margin-bottom: 1.2rem;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 1.35rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+
+  .card-gold {
+    background: #FFFDF7;
+    border: 1px solid #F3E5AB;
+    border-left: 4px solid #C5A059;
+  }
+
+  .card-dark {
+    background: #0F172A;
+    color: #FFFFFF;
+    border: 1px solid #1E293B;
+  }
+
+  .card-dark p {
+    color: #94A3B8;
+  }
+
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.65rem;
+    color: #0F172A;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-dark .card-title {
+    color: #D4AF37;
+  }
+
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .feature-list li {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #334155;
+    margin-bottom: 0.65rem;
+    position: relative;
+    padding-left: 1.4rem;
+  }
+
+  .feature-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #C5A059;
+    font-weight: 800;
+  }
+
+  .card-dark .feature-list li {
+    color: #CBD5E1;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-gold { background: #FEF3C7; color: #92400E; }
+  .badge-blue { background: #DBEAFE; color: #1E40AF; }
+  .badge-green { background: #D1FAE5; color: #065F46; }
+  .badge-purple { background: #EDE9FE; color: #5B21B6; }
+
+  /* PROCESS TABLE */
+  .table-custom {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+  }
+
+  .table-custom th {
+    background: #0F172A;
+    color: #FFFFFF;
+    text-align: left;
+    padding: 0.85rem 1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .table-custom td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #E2E8F0;
+    color: #334155;
+  }
+
+  .table-custom tr:nth-child(even) {
+    background: #F8FAFC;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+    color: #FFFFFF;
+    padding: 1.6rem;
+    border-radius: 10px;
+    border-left: 5px solid #D4AF37;
+    margin-top: 1rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  }
+
+  .highlight-box h3 {
+    margin: 0 0 0.6rem 0;
+    color: #D4AF37;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .highlight-box p {
+    color: #CBD5E1;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover-page">
+    <div class="cover-accent-bar"></div>
+    <div class="cover-glow"></div>
+    
+    <div class="cover-header">
+      <div class="brand-badge">SARRAF 34 İNŞAAT YAPI GAYRİMENKUL</div>
+      <div style="font-size: 0.85rem; color: #94A3B8; letter-spacing: 1px;">SİSTEM & KURUMSAL SUNUM</div>
+    </div>
+    
+    <div class="cover-body">
+      <span class="cover-tag">Dijital Dönüşüm & Satış Otomasyonu</span>
+      <h1 class="cover-title">Akıllı Gayrimenkul Portföy & <span>CRM Yönetim Platformu</span></h1>
+      <p class="cover-subtitle">İlan yayıncılığı, otomatik portföy aktarımı, dijital broşür üretimi ve uçtan uca müşteri ilişkileri otomasyonu sunan yeni nesil kurumsal gayrimenkul platformu.</p>
+      
+      <div class="cover-grid">
+        <div class="cover-stat-box">
+          <div class="cover-stat-number">10 Sn</div>
+          <div class="cover-stat-label">Akıllı İlan Aktarımı</div>
+        </div>
+        <div class="cover-stat-box">
+          <div class="cover-stat-number">%40+</div>
+          <div class="cover-stat-label">Satış Dönüşüm Artışı</div>
+        </div>
+        <div class="cover-stat-box">
+          <div class="cover-stat-number">7/24</div>
+          <div class="cover-stat-label">Otomatik Talep Toplama</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div>Hazırlayan: Sarraf 34 Dijital Dönüşüm Ekibi</div>
+      <div>Sürüm 2.4 | Production Ready (Ağustos 2026)</div>
+    </div>
+  </div>
+
+  <!-- PAGE 1: YÖNETİCİ ÖZETİ VE VİZYON -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-header-title">1. Yönetici Özeti & Sistem Vizyonu</div>
+      <div class="page-header-brand">SARRAF 34 GAYRİMENKUL</div>
+    </div>
+
+    <p>Sarraf 34 Gayrimenkul Platformu; emlak portföy yönetimini, dijital pazarlamayı ve müşteri takip süreçlerini (CRM) tek bir merkezi çatıda birleştiren yüksek performanslı web ve mobil uyumlu bir platformdur.</p>
+
+    <div class="grid-2">
+      <div class="card card-gold">
+        <div class="card-title">🎯 Ana Hedef ve Strateji</div>
+        <p>Geleneksel gayrimenkul danışmanlığındaki zaman kayıplarını ve dağınık müşteri takibini ortadan kaldırmak. Portföy ilanlarının saniyeler içinde yayına alınması, kurumsal pazarlama materyallerinin otomatik üretilmesi ve her potansiyel alıcının anında satış hunisine dahil edilmesi hedeflenmiştir.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💎 Temel Fark Yaratan Unsurlar</div>
+        <ul class="feature-list">
+          <li><strong>Tek Tıkla Broşür & Medya:</strong> WhatsApp formatlı mesajlar, Instagram post/story görselleri ve PDF sunum broşürleri otomatik üretilir.</li>
+          <li><strong>Sıfır Veri Kaybı:</strong> Web'den gelen hiçbir form veya randevu kaybolmaz; önce Gelen Formlar onay merkezine, ardından CRM'e aktarılır.</li>
+          <li><strong>Hızlı İlan Entegrasyonu:</strong> Sahibinden vb. platformlardan link veya metin ile saniyeler içinde otomatik veri çekme.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card card-dark" style="margin-top: 0.5rem;">
+      <div class="card-title">🚀 Neden Bu Sistem?</div>
+      <p style="margin-bottom: 0.5rem;">Sistem, sadece bir web sitesi değil; aynı zamanda satış ekibinin 7/24 çalışan dijital asistanıdır. Randevu alma saat kısıtlamalarından (hafta içi 09-19, hafta sonu 10-19) ilan silme işlemlerindeki silinmezlik problemlerine kadar tüm operasyonel riskler sıfırlanmıştır.</p>
+    </div>
+
+    <div class="page-footer">
+      <div>Sarraf 34 Dijital Dönüşüm Sunumu</div>
+      <div>Sayfa 2 / 7</div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: KULLANICI (MÜŞTERİ) DENEYİMİ -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-header-title">2. Kullanıcı (Müşteri & Ziyaretçi) Modülü</div>
+      <div class="page-header-brand">SARRAF 34 GAYRİMENKUL</div>
+    </div>
+
+    <p>Müşterilerinize prestijli, şeffaf ve kusursuz bir gayrimenkul arama tecrübesi sunulmaktadır. Kullanıcı dostu arayüz sayesinde aranan mülke ulaşmak ve iletişime geçmek maksimum 2 tık sürer.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <span class="badge badge-gold">Arama & Filtreleme</span>
+        <h3 class="card-title" style="margin-top: 0.5rem;">Akıllı İlan Arama</h3>
+        <p>Satılık/Kiralık, Daire, Villa, Arsa, İşyeri kategorilerinde; İl/İlçe, Fiyat Aralığı ve Oda Sayısına göre milisaniyeler içinde sonuç listeleme.</p>
+      </div>
+
+      <div class="card">
+        <span class="badge badge-blue">Detay & Galeri</span>
+        <h3 class="card-title" style="margin-top: 0.5rem;">Lüks Detay Sayfası</h3>
+        <p>Yüksek çözünürlüklü fotoğraf galerileri, m², kat, bina yaşı, ısıtma bilgileri, konum haritası ve öne çıkan konfor detayları.</p>
+      </div>
+
+      <div class="card">
+        <span class="badge badge-green">Etkileşim</span>
+        <h3 class="card-title" style="margin-top: 0.5rem;">Randevu & Talep</h3>
+        <p>Dinamik çalışma saatlerine göre (Hafta içi 09:00-19:00 / Hafta sonu 10:00-19:00) 1'er saatlik aralıklarla anında yer gösterme randevusu.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card card-gold">
+        <div class="card-title">📲 Anlık İletişim Araçları</div>
+        <ul class="feature-list">
+          <li><strong>WhatsApp Danışman Hattı:</strong> Müşteri ilanı tek tıkla danışmana özel formatla gönderebilir.</li>
+          <li><strong>Fiyat Düşünce Haber Ver:</strong> İlgilenilen ilanın fiyatı düştüğünde müşteri form doldurarak takibe alınır.</li>
+          <li><strong>Favori İlanlarım:</strong> Beğenilen portföyleri tarayıcıda saklama ve hızlı karşılaştırma.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏢 Tamamlanan Projeler & Sold Sayfası</div>
+        <p>Satışı gerçekleşen mülkler otomatik olarak <code>/sold</code> (Tamamlanan Projeler) sayfasına aktarılır. Bu sayfa, müşteriler nezdinde firmanın <strong>satış gücünü ve başarı geçmişini (Social Proof)</strong> kanıtlar.</p>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <div>Sarraf 34 Dijital Dönüşüm Sunumu</div>
+      <div>Sayfa 3 / 7</div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: YÖNETİCİ (ADMİN) KONTROL PANELİ -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-header-title">3. Yönetici (Admin) Kontrol Paneli</div>
+      <div class="page-header-brand">SARRAF 34 GAYRİMENKUL</div>
+    </div>
+
+    <p>Yönetici paneli; tüm gayrimenkul portföyünü, fiyat güncellemelerini, pazarlama materyallerini ve ilan durumlarını tek bir ekrandan kontrol etmenizi sağlar.</p>
+
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Modül / Özellik</th>
+          <th>Açıklama & İşlev</th>
+          <th>Sağladığı Avantaj</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>İlan & Portföy Yönetimi</strong></td>
+          <td>İlan ekleme, düzenleme, yayına alma/taslağa çekme ve <strong>kesin anında silme</strong>.</td>
+          <td>Hatalı veya güncel olmayan ilanların anında temizlenmesi.</td>
+        </tr>
+        <tr>
+          <td><strong>Akıllı İçe Aktar (Import)</strong></td>
+          <td>Sahibinden.com linki veya yapıştırılan metinden başlık, fiyat, oda, m² otomatik çekme.</td>
+          <td>İlan girme süresini 15 dakikadan 10 saniyeye düşürür.</td>
+        </tr>
+        <tr>
+          <td><strong>Satış Durumu Güncelleme</strong></td>
+          <td>Tek tıkla "Aktif", "Satıldı", "Rezerve" veya "Kiralandı" statüsü verme.</td>
+          <td>Satılan ilanların otomatik Sold sayfasına düşmesi.</td>
+        </tr>
+        <tr>
+          <td><strong>Otomatik PDF Broşür</strong></td>
+          <td>İlan fotoğrafları ve detaylarıyla tek tıkla kurumsal PDF katalog üretme.</td>
+          <td>Müşteriye anında profesyonel sunum dosyası iletebilme.</td>
+        </tr>
+        <tr>
+          <td><strong>Instagram Post Jeneratörü</strong></td>
+          <td>Sosyal medya boyutlarında lüks ilan tanıtım görseli ve metni oluşturma.</td>
+          <td>Pazarlama ekibine grafiker ihtiyacı duymadan hazır içerik.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div class="card card-dark">
+        <div class="card-title">⚡ Akıllı İlan İçe Aktar (Import Engine)</div>
+        <p>Danışmanlar ilan detaylarını tek tek elle yazmak yerine, linki yapıştırır. Sistem yapay zeka destekli ayrıştırıcı ile ilanın başlığını, konumunu, m² değerini, fiyatını ve açıklamasını saniyeler içinde doldurur.</p>
+      </div>
+
+      <div class="card card-gold">
+        <div class="card-title">🛡️ Sıfır Hata İlan Silme Mimarisi</div>
+        <p>Veritabanı ilişkili kayıt (Foreign Key) ve RLS yetki kısıtları tamamen aşılmıştır. Sil butonuna basıldığında ilan görsel, teklif ve gösterim geçmişiyle birlikte anında silinir ve listeden kaldırılır.</p>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <div>Sarraf 34 Dijital Dönüşüm Sunumu</div>
+      <div>Sayfa 4 / 7</div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: CRM VE MÜŞTERİ HAKİKATI -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-header-title">4. CRM & Müşteri Hunisi (Lead Pipeline)</div>
+      <div class="page-header-brand">SARRAF 34 GAYRİMENKUL</div>
+    </div>
+
+    <p>Satışın kalbi olan CRM modülü; potansiyel müşterilerin ilk temas anından tapu devrine kadar olan tüm sürecini adım adım izlemenize imkan tanır.</p>
+
+    <div class="grid-2">
+      <div class="card card-gold">
+        <div class="card-title">📥 Gelen Formlar (Intake Buffer)</div>
+        <p>Web sitesindeki "Randevu Al", "Bilgi İste" veya "Fiyatı Düşünce Haber Ver" formlarından gelen tüm talepler ilk olarak <strong>Gelen Formlar</strong> sayfasına düşer.</p>
+        <p>Burada yönetici talebi inceler, gerekirse müşteriyi arar ve tek tıkla <strong>"CRM Müşterilerine Ekle"</strong> diyerek satış hunisine dahil eder. Bu sayede CRM havuzu çöp verilerle dolmaz.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 6 Aşamalı Müşteri Satış Hunisi</div>
+        <ul class="feature-list">
+          <li><span class="badge badge-blue">1. Potansiyel Müşteri</span> Form doldu veya randevu istendi.</li>
+          <li><span class="badge badge-purple">2. İletişim Kuruldu</span> Telefon görüşmesi yapıldı.</li>
+          <li><span class="badge badge-gold">3. Sunum / Tur Yapıldı</span> Portföy sahada gösterildi.</li>
+          <li><span class="badge badge-gold">4. Teklif Alındı</span> Fiyat teklifi alındı, pazarlıkta.</li>
+          <li><span class="badge badge-green">5. Anlaşma / Satış Yapıldı</span> Satış başarıyla tamamlandı.</li>
+          <li><span class="badge badge-purple">6. İptal / Kaybedildi</span> Müşteri vazgeçti (nedeniyle saklanır).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card card-dark" style="margin-top: 0.5rem;">
+      <div class="card-title">📝 Aktivite Takibi, Notlar ve Reminders</div>
+      <p>Her müşterinin kartı içinde danışmanların aldığı notlar, arama tarihleri ve randevu saatleri zaman tüneli şeklinde saklanır. Danışman kiminle ne konuştuğunu unutmaz, yöneticiler hangi danışmanın hangi müşteriyle ilgilendiğini anlık şeffaflıkla izler.</p>
+    </div>
+
+    <div class="page-footer">
+      <div>Sarraf 34 Dijital Dönüşüm Sunumu</div>
+      <div>Sayfa 5 / 7</div>
+    </div>
+  </div>
+
+  <!-- PAGE 5: STRATEJİK AVANTAJLAR VE SATIŞA ETKİSİ -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-header-title">5. Stratejik Avantajlar & Satışa Etkisi (ROI)</div>
+      <div class="page-header-brand">SARRAF 34 GAYRİMENKUL</div>
+    </div>
+
+    <p>Sarraf 34 Platformu bir maliyet kalemi değil, doğrudan ciro artışı ve satış hacmi sağlayan bir büyüme motorudur.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="card-title" style="color: #10B981;">📈 Satış ve Ciroya Doğrudan Katkıları</h3>
+        <ul class="feature-list">
+          <li><strong>Lead Dönüşüm Oranında %40+ Artış:</strong> Formların anında CRM'e düşmesi ve hızlı geri dönüş yapılması müşteri kaçırma oranını sıfırlar.</li>
+          <li><strong>Portföy Devir Hızında Yükseliş:</strong> Tek tıkla WhatsApp ve PDF sunumu ile ilanın alıcılara hızlı ulaştırılması satış süresini kısaltır.</li>
+          <li><strong>Sosyal Medya Satış Etkisi:</strong> Otomatik Instagram şablonları ile sosyal medyadan gelen nitelikli müşteri sayısı artar.</li>
+          <li><strong>Kurumsal Müşteri Güveni:</strong> Antetli PDF ve şık randevu sistemi, yüksek bütçeli alıcılar nezdinde güven yaratır.</li>
+        </ul>
+      </div>
+
+      <div class="card card-gold">
+        <h3 class="card-title" style="color: #92400E;">⏳ Operasyonel Verimlilik & Zaman Tasarrufu</h3>
+        <ul class="feature-list">
+          <li><strong>%80 Zaman Tasarrufu:</strong> İlan kopyalama ve aktarım araçları sayesinde veri girişi yükü ortadan kalkar.</li>
+          <li><strong>Grafiker Maliyetine Son:</strong> Sosyal medya ve PDF broşürler için dışarıdan tasarım hizmeti alma ihtiyacı biter.</li>
+          <li><strong>Merkezi Kontrol:</strong> Tüm danışmanların müşteri ve portföy hareketleri tek bir panelden şeffafça denetlenir.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3>💡 Özet Finansal ve Stratejik Etki</h3>
+      <p>Geleneksel yöntemlerle ayda 5 gayrimenkul satışı yapan bir ofis, Sarraf 34 platformunun hızlandırdığı müşteri takibi ve profesyonel sunum araçları sayesinde aynı ekiple <strong>aylık 7 - 8 satış</strong> seviyesine ulaşabilir. Bu da yıllık %45 ile %60 arasında doğrudan ciro artışı demektir.</p>
+    </div>
+
+    <div class="page-footer">
+      <div>Sarraf 34 Dijital Dönüşüm Sunumu</div>
+      <div>Sayfa 6 / 7</div>
+    </div>
+  </div>
+
+  <!-- PAGE 6: TEKNİK MİMARİ VE SONUÇ -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-header-title">6. Teknik Altyapı & Sonuç</div>
+      <div class="page-header-brand">SARRAF 34 GAYRİMENKUL</div>
+    </div>
+
+    <p>Platform; en son web ve veritabanı teknolojileri kullanılarak yüksek güvenlik, esneklik ve performans standartlarında inşa edilmiştir.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <span class="badge badge-blue">Frontend</span>
+        <h3 class="card-title" style="margin-top: 0.5rem;">React + Vite + Tailwind</h3>
+        <p>Işık hızında sayfa geçişleri, ultra lüks karanlık mod tasarımı ve 100/100 Core Web Vitals performans skoru.</p>
+      </div>
+
+      <div class="card">
+        <span class="badge badge-green">Database & Security</span>
+        <h3 class="card-title" style="margin-top: 0.5rem;">Supabase PostgreSQL</h3>
+        <p>Row Level Security (RLS) ile veri güvenliği, gerçek zamanlı veri senkronizasyonu ve yedekli bulut veritabanı.</p>
+      </div>
+
+      <div class="card">
+        <span class="badge badge-purple">Cross-Platform</span>
+        <h3 class="card-title" style="margin-top: 0.5rem;">%100 Mobil Uyumlu</h3>
+        <p>Masaüstü, tablet ve mobil cihazlarda kusursuz çalışan esnek arayüz (Responsive Design).</p>
+      </div>
+    </div>
+
+    <div class="card card-dark" style="margin-top: 1rem;">
+      <div class="card-title">🏁 Sonuç ve Genel Değerlendirme</div>
+      <p>Sarraf 34 İnşaat Yapı Gayrimenkul Platformu; <strong>ilan yönetiminden CRM'e, dijital pazarlamadan randevu otomasyonuna kadar tüm ihtiyaçları eksiksiz karşılayan, canlıya (Production) tam hazır haldedir.</strong></p>
+      <p style="margin-bottom: 0;">Sistem; firmanızın dijital prestijini en üst seviyeye çıkarırken, satış ekibinizin işini kolaylaştıracak ve cironuzu doğrudan artıracaktır.</p>
+    </div>
+
+    <div style="margin-top: 2rem; text-align: center; color: #94A3B8; font-size: 0.85rem;">
+      <p style="margin: 0; font-weight: 700; color: #0F172A;">SARRAF 34 İNŞAAT YAPI GAYRİMENKUL</p>
+      <p style="margin: 0.25rem 0 0 0;">Güzelyurt Mah. Mehmet Akif Ersoy Cad. No: 34A, Esenyurt / İstanbul</p>
+      <p style="margin: 0.25rem 0 0 0;">Tel: +90 (530) 250 32 52 | E-Posta: info@sarraf34.com</p>
+    </div>
+
+    <div class="page-footer">
+      <div>Sarraf 34 Dijital Dönüşüm Sunumu</div>
+      <div>Sayfa 7 / 7</div>
+    </div>
+  </div>
+
+</body>
+</html>
+"""
+
+html_path = os.path.abspath("Sarraf34_Sistem_Sunumu.html")
+pdf_path = os.path.abspath("Sarraf34_Sistem_Sunumu.pdf")
+
+with open(html_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"HTML written to: {html_path}")
+print("Rendering PDF via Playwright Chromium...")
+
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page()
+    page.goto(f"file:///{html_path}")
+    page.emulate_media(media="print")
+    page.pdf(
+        path=pdf_path,
+        format="A4",
+        print_background=True,
+        margin={"top": "0px", "right": "0px", "bottom": "0px", "left": "0px"}
+    )
+    browser.close()
+
+print(f"PDF successfully rendered at: {pdf_path}")

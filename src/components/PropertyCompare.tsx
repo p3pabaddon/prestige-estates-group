@@ -171,7 +171,7 @@ const PropertyCompare = ({ items, onRemove, onClear }: PropertyCompareProps) => 
                                 </Link>
                               )}
                               <a
-                                href={`https://wa.me/905325523434?text=${encodeURIComponent(
+                                href={`https://wa.me/905302503252?text=${encodeURIComponent(
                                   `Merhaba, "${p.title}" ilanı hakkında karşılaştırma bilgisi almak istiyorum.`
                                 )}`}
                                 target="_blank"
