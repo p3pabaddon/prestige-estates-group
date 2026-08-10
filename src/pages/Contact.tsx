@@ -179,7 +179,7 @@ const Contact = () => {
                     <Clock size={20} className="text-primary flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-display text-base text-foreground mb-1">{t("contactPage.hours")}</h4>
-                      <p className="text-muted-foreground font-body text-sm">{t("contactPage.monFri")}<br />{t("contactPage.sat")}<br />{t("contactPage.sun")}</p>
+                      <p className="text-muted-foreground font-body text-sm">{t("contactPage.monFri")}<br />{t("contactPage.sat")}</p>
                     </div>
                   </div>
                 </div>

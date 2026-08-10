@@ -252,9 +252,9 @@ const translations: Record<string, Record<Lang, string>> = {
   "contactPage.send": { tr: "Mesajı Gönder", en: "Send Inquiry" },
   "contactPage.office": { tr: "Merkez Ofis", en: "Head Office" },
   "contactPage.hours": { tr: "Çalışma Saatleri", en: "Working Hours" },
-  "contactPage.monFri": { tr: "Pzt–Cum: 09:00–19:00", en: "Mon–Fri: 09:00–19:00" },
-  "contactPage.sat": { tr: "Cumartesi: 09:00–19:00", en: "Saturday: 09:00–19:00" },
-  "contactPage.sun": { tr: "Pazar: Randevu ile", en: "Sunday: By Appointment" },
+  "contactPage.monFri": { tr: "Hafta İçi: 09:00–19:00", en: "Weekdays: 09:00–19:00" },
+  "contactPage.sat": { tr: "Hafta Sonu: 10:00–19:00", en: "Weekends: 10:00–19:00" },
+  "contactPage.sun": { tr: "Pazar: 10:00–19:00", en: "Sunday: 10:00–19:00" },
   "contactPage.thanks": { tr: "Mesajınız başarıyla iletildi. Sarraf 34 uzman danışmanımız en kısa sürede sizinle iletişime geçecektir.", en: "Thank you for reaching out. A Sarraf 34 advisor will contact you shortly." },
 
   // Property Details

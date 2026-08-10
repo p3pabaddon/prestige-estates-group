@@ -264,6 +264,31 @@ export function ScheduleTourModal({
   const [phone, setPhone] = useState("");
   const [date, setDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("12:00 - 13:00");
+  const isWeekend = date ? [0, 6].includes(new Date(date).getDay()) : false;
+  const availableSlots = isWeekend
+    ? [
+        "10:00 - 11:00",
+        "11:00 - 12:00",
+        "12:00 - 13:00",
+        "13:00 - 14:00",
+        "14:00 - 15:00",
+        "15:00 - 16:00",
+        "16:00 - 17:00",
+        "17:00 - 18:00",
+        "18:00 - 19:00",
+      ]
+    : [
+        "09:00 - 10:00",
+        "10:00 - 11:00",
+        "11:00 - 12:00",
+        "12:00 - 13:00",
+        "13:00 - 14:00",
+        "14:00 - 15:00",
+        "15:00 - 16:00",
+        "16:00 - 17:00",
+        "17:00 - 18:00",
+        "18:00 - 19:00",
+      ];
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -404,16 +429,11 @@ export function ScheduleTourModal({
                     onChange={(e) => setTimeSlot(e.target.value)}
                     className="w-full bg-secondary border border-border px-3 py-2.5 text-foreground font-body text-xs rounded focus:outline-none focus:border-primary"
                   >
-                    <option value="09:00 - 10:00">09:00 - 10:00</option>
-                    <option value="10:00 - 11:00">10:00 - 11:00</option>
-                    <option value="11:00 - 12:00">11:00 - 12:00</option>
-                    <option value="12:00 - 13:00">12:00 - 13:00</option>
-                    <option value="13:00 - 14:00">13:00 - 14:00</option>
-                    <option value="14:00 - 15:00">14:00 - 15:00</option>
-                    <option value="15:00 - 16:00">15:00 - 16:00</option>
-                    <option value="16:00 - 17:00">16:00 - 17:00</option>
-                    <option value="17:00 - 18:00">17:00 - 18:00</option>
-                    <option value="18:00 - 19:00">18:00 - 19:00</option>
+                    {availableSlots.map((slot) => (
+                      <option key={slot} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

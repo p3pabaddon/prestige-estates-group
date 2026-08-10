@@ -145,12 +145,36 @@ const AdminProperties = () => {
     load();
   };
 
+  const isUUID = (str?: string | null) =>
+    Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str));
+
   const remove = async (p: Property) => {
-    if (!confirm(`"${p.title}" ilanı silinsin mi?`)) return;
-    const { error } = await supabase.from("properties").delete().eq("id", p.id);
-    if (error) return toast.error(error.message);
-    toast.success("İlan silindi");
-    load();
+    if (!confirm(`"${p.title}" ilanı silinsin mi? Bu işlem geri alınamaz.`)) return;
+
+    if (!isUUID(p.id)) {
+      setItems((prev) => prev.filter((i) => i.id !== p.id));
+      toast.success("İlan listeden silindi");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      // 1. Delete linked child records to prevent foreign key errors
+      await supabase.from("property_images").delete().eq("property_id", p.id);
+      await supabase.from("property_features").delete().eq("property_id", p.id);
+
+      // 2. Delete main property record
+      const { error } = await supabase.from("properties").delete().eq("id", p.id);
+      if (error) throw error;
+
+      toast.success("İlan başarıyla silindi");
+      setItems((prev) => prev.filter((i) => i.id !== p.id));
+      load();
+    } catch (err: any) {
+      toast.error(`Silme başarısız: ${err.message || "Yetkiniz yetersiz veya veritabanı kısıtı var."}`);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const [importOpen, setImportOpen] = useState(false);
