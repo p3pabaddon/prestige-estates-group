@@ -14,6 +14,15 @@ interface BaseModalProps {
   ilanNo?: string;
 }
 
+const isUUID = (str?: string | null) =>
+  Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str));
+
+const formatNumberWithDots = (val: string) => {
+  const digits = val.replace(/\D/g, "");
+  if (!digits) return "";
+  return new Intl.NumberFormat("tr-TR").format(Number(digits));
+};
+
 /**
  * 1. Fiyatı Düşünce Haber Ver Modalı
  */
@@ -29,11 +38,17 @@ export function PriceDropAlertModal({
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [targetPrice, setTargetPrice] = useState("");
+  const [currency, setCurrency] = useState("TL");
   const [channel, setChannel] = useState<"whatsapp" | "sms" | "email">("whatsapp");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   if (!isOpen) return null;
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    setTargetPrice(formatNumberWithDots(raw));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,27 +60,27 @@ export function PriceDropAlertModal({
     try {
       const message = `[Fiyat Düşüş Bildirimi Talebi] İlan: "${propertyTitle}" (İlan No: ${ilanNo || propertyId}). Mevcut Fiyat: ${
         propertyPrice ? formatTRY(propertyPrice) : "Belirtilmedi"
-      }. ${targetPrice ? `Hedef Bütçe: ${targetPrice} TL.` : ""} Bildirim Kanalı: ${channel.toUpperCase()}`;
+      }. ${targetPrice ? `Hedef Bütçe: ${targetPrice} ${currency}.` : ""} Bildirim Kanalı: ${channel.toUpperCase()}`;
 
       // Save to contact_requests (Gelen Formlar)
       const { error: reqError } = await supabase.from("contact_requests").insert({
         full_name: fullName.trim(),
         phone: phone.trim(),
         email: email.trim() || null,
-        property_id: propertyId,
+        property_id: isUUID(propertyId) ? propertyId : null,
+        source: "Fiyat Takip Formu",
         subject: `Fiyat Bildirimi: ${propertyTitle}`,
         message: message,
         status: "yeni",
       });
 
-      if (reqError) {
-        console.warn("Contact request record created with note:", reqError.message);
-      }
+      if (reqError) throw reqError;
 
       setSuccess(true);
       toast.success("Talebiniz alındı! Fiyat güncellendiğinde ilk sizin haberiniz olacak.");
     } catch (err: any) {
-      toast.error("Bir hata oluştu. Lütfen doğrudan WhatsApp üzerinden ulaşın.");
+      console.error("PriceDropAlertModal submit error:", err);
+      toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
     }
@@ -160,13 +175,25 @@ export function PriceDropAlertModal({
                   <label className="block text-[10px] uppercase font-body tracking-wider text-muted-foreground mb-1 font-semibold">
                     Hedef Bütçeniz (Opsiyonel)
                   </label>
-                  <input
-                    type="text"
-                    value={targetPrice}
-                    onChange={(e) => setTargetPrice(e.target.value)}
-                    placeholder="Örn: 4.500.000 TL"
-                    className="w-full bg-secondary border border-border px-3 py-2.5 text-foreground font-body text-xs rounded focus:outline-none focus:border-primary"
-                  />
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={targetPrice}
+                      onChange={handlePriceChange}
+                      placeholder="430.000"
+                      className="w-full bg-secondary border border-border px-3 py-2.5 text-foreground font-body text-xs rounded focus:outline-none focus:border-primary min-w-0"
+                    />
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="bg-secondary border border-border px-2 py-2.5 text-foreground font-body text-xs rounded focus:outline-none focus:border-primary font-semibold flex-shrink-0"
+                    >
+                      <option value="TL">₺ TL</option>
+                      <option value="USD">$ USD</option>
+                      <option value="EUR">€ EUR</option>
+                      <option value="GBP">£ GBP</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -259,7 +286,8 @@ export function ScheduleTourModal({
       const { error: reqError } = await supabase.from("contact_requests").insert({
         full_name: fullName.trim(),
         phone: phone.trim(),
-        property_id: propertyId,
+        property_id: isUUID(propertyId) ? propertyId : null,
+        source: "Randevu Formu",
         subject: `Yer Gösterme Randevusu: ${propertyTitle}`,
         message: message,
         status: "yeni",

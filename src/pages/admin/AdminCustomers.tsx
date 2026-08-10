@@ -221,54 +221,70 @@ const AdminCustomers = () => {
             </div>
           )}
 
-          {/* Kanban View */}
+          {/* Professional Kanban View (Horizontal Scroll + Column Vertical Scroll) */}
           {view === "kanban" && items.length > 0 && (
-            <div className="flex gap-4 overflow-x-auto pb-4">
+            <div className="flex gap-4 overflow-x-auto pb-4 pt-1 items-start min-w-full">
               {STAGES.map((s) => {
                 const col = filtered.filter((c) => c.stage === s.value);
                 return (
-                  <div key={s.value} className="w-72 flex-shrink-0">
-                    <div className="flex items-center justify-between mb-3 bg-secondary/50 px-3 py-2 rounded-sm border border-border">
-                      <p className="font-body text-[10px] tracking-[0.18em] uppercase font-semibold text-foreground">{s.label}</p>
-                      <span className="font-body text-xs font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary">{col.length}</span>
+                  <div
+                    key={s.value}
+                    className="w-72 flex-shrink-0 flex flex-col max-h-[calc(100vh-250px)] min-h-[480px] bg-secondary/30 rounded-sm border border-border/70 p-2.5"
+                  >
+                    {/* Column Sticky Header */}
+                    <div className="sticky top-0 z-10 flex items-center justify-between mb-3 bg-secondary/90 backdrop-blur-md px-3 py-2 rounded-sm border border-border shadow-sm">
+                      <p className="font-body text-[10px] tracking-[0.15em] uppercase font-bold text-foreground truncate" title={s.label}>
+                        {s.label}
+                      </p>
+                      <span className="font-body text-xs font-bold px-2 py-0.5 rounded bg-primary/15 text-primary ml-1 flex-shrink-0">
+                        {col.length}
+                      </span>
                     </div>
-                    <div className="space-y-3">
-                      {col.map((c) => (
-                        <div key={c.id} className="luxury-card p-4 hover:border-primary/40 transition-colors">
-                          <div className="flex items-start justify-between gap-2">
-                            <Link to={`/admin/musteriler/${c.id}`} className="font-display text-sm font-semibold text-foreground hover:text-primary line-clamp-1">
-                              {c.full_name}
-                            </Link>
-                            {role === "admin" && c.assigned_to && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-secondary border border-border text-muted-foreground font-body whitespace-nowrap" title="Atanan Danışman">
-                                {staffMap[c.assigned_to] || "Danışman"}
-                              </span>
-                            )}
-                          </div>
-                          
-                          <p className="font-body text-xs text-muted-foreground mt-1">{c.phone ?? "—"}</p>
-                          
-                          {c.interested_district && (
-                            <p className="font-body text-[11px] text-muted-foreground mt-1">📍 {c.interested_district}</p>
-                          )}
 
-                          {(c.budget_min || c.budget_max) && (
-                            <p className="font-body text-xs text-primary font-semibold mt-2">
-                              {formatTRY(c.budget_min)} – {formatTRY(c.budget_max)}
-                            </p>
-                          )}
-                          
-                          <select
-                            value={c.stage}
-                            onChange={(e) => moveStage(c, e.target.value as Stage)}
-                            className="mt-3 w-full bg-secondary border border-border px-2 py-1.5 font-body text-[10px] tracking-wider uppercase text-muted-foreground focus:outline-none focus:border-primary rounded-sm"
-                          >
-                            {STAGES.map((x) => (
-                              <option key={x.value} value={x.value}>{x.label}</option>
-                            ))}
-                          </select>
+                    {/* Column Customer Cards Container with Vertical Scroll */}
+                    <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                      {col.length === 0 ? (
+                        <div className="h-28 flex items-center justify-center border border-dashed border-border/50 rounded-sm">
+                          <span className="text-[11px] text-muted-foreground font-body">Müşteri yok</span>
                         </div>
-                      ))}
+                      ) : (
+                        col.map((c) => (
+                          <div key={c.id} className="luxury-card p-3.5 hover:border-primary/50 transition-all space-y-2 shadow-sm">
+                            <div className="flex items-start justify-between gap-2">
+                              <Link to={`/admin/musteriler/${c.id}`} className="font-display text-sm font-semibold text-foreground hover:text-primary line-clamp-1" title={c.full_name}>
+                                {c.full_name}
+                              </Link>
+                              {role === "admin" && c.assigned_to && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-secondary border border-border text-muted-foreground font-body whitespace-nowrap" title="Atanan Danışman">
+                                  {staffMap[c.assigned_to] || "Danışman"}
+                                </span>
+                              )}
+                            </div>
+                            
+                            <p className="font-body text-xs text-muted-foreground font-medium">{c.phone ?? "—"}</p>
+                            
+                            {c.interested_district && (
+                              <p className="font-body text-[11px] text-muted-foreground truncate">📍 {c.interested_district}</p>
+                            )}
+
+                            {(c.budget_min || c.budget_max) && (
+                              <p className="font-body text-xs text-primary font-bold">
+                                {formatTRY(c.budget_min)} – {formatTRY(c.budget_max)}
+                              </p>
+                            )}
+                            
+                            <select
+                              value={c.stage}
+                              onChange={(e) => moveStage(c, e.target.value as Stage)}
+                              className="w-full bg-secondary border border-border px-2 py-1.5 font-body text-[10px] tracking-wider uppercase text-muted-foreground focus:outline-none focus:border-primary rounded-sm cursor-pointer mt-1"
+                            >
+                              {STAGES.map((x) => (
+                                <option key={x.value} value={x.value}>{x.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 );

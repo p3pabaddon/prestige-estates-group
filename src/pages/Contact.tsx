@@ -36,13 +36,16 @@ const Contact = () => {
     }
     setBusy(true);
     try {
+      const isUUID = (str?: string | null) =>
+        Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str));
+
       const { error } = await supabase.from("contact_requests").insert({
         full_name: formData.name.trim(),
         email: formData.email.trim() || null,
         phone: formData.phone.trim() || null,
         message: formData.message.trim(),
-        property_id: propertyId || null,
-        source: "website",
+        property_id: isUUID(propertyId) ? propertyId : null,
+        source: "Web İletişim Formu",
       });
       if (error) throw error;
       toast.success(t("contactPage.thanks"));
