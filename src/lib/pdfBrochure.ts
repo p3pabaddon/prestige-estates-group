@@ -1,4 +1,3 @@
-import jsPDF from "jspdf";
 import { formatTRY } from "@/lib/crm";
 
 export interface PropertyBrochureData {
@@ -29,29 +28,25 @@ export interface PropertyBrochureData {
 }
 
 /**
- * Loads an image from URL and converts to base64 for jsPDF embedding
+ * Convert image URL to base64 data URI for embedding in PDF
  */
-async function getBase64ImageFromUrl(imageUrl: string): Promise<string | null> {
+async function imageToBase64(url: string): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
       try {
         const canvas = document.createElement("canvas");
-        // Limit max resolution for PDF performance and quality
-        const maxWidth = 1200;
-        let width = img.naturalWidth || 800;
-        let height = img.naturalHeight || 600;
-        if (width > maxWidth) {
-          height = (maxWidth / width) * height;
-          width = maxWidth;
-        }
-        canvas.width = width;
-        canvas.height = height;
+        const maxW = 1200;
+        let w = img.naturalWidth || 800;
+        let h = img.naturalHeight || 600;
+        if (w > maxW) { h = (maxW / w) * h; w = maxW; }
+        canvas.width = w;
+        canvas.height = h;
         const ctx = canvas.getContext("2d");
         if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/jpeg", 0.85));
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.88));
         } else {
           resolve(null);
         }
@@ -60,113 +55,16 @@ async function getBase64ImageFromUrl(imageUrl: string): Promise<string | null> {
       }
     };
     img.onerror = () => resolve(null);
-    img.src = imageUrl;
+    img.src = url;
   });
 }
 
 /**
- * Generates an ultra-luxurious, printable A4 Real Estate PDF Brochure.
+ * Generates a premium, fully Turkish-compatible PDF brochure using HTML→print approach.
+ * This avoids jsPDF's broken Helvetica Turkish character support entirely.
  */
 export async function generatePropertyPDF(property: PropertyBrochureData): Promise<void> {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  });
-
-  const pageWidth = 210;
-  const pageHeight = 297;
-  const margin = 15;
-  const contentWidth = pageWidth - margin * 2;
-
-  // Colors
-  const primaryGold = [197, 160, 89]; // #C5A059
-  const darkBg = [15, 23, 42]; // #0F172A
-  const textDark = [30, 41, 59]; // #1E293B
-  const textMuted = [100, 116, 139]; // #64748B
-  const lightGray = [248, 250, 252]; // #F8FAFC
-
-  // 1. Header Bar (Dark & Gold Luxury Header)
-  doc.setFillColor(darkBg[0], darkBg[1], darkBg[2]);
-  doc.rect(0, 0, pageWidth, 26, "F");
-
-  // Top Accent Gold Line
-  doc.setFillColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  doc.rect(0, 0, pageWidth, 2.5, "F");
-
-  // Brand Name
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.setTextColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  doc.text("SARRAF 34", margin, 14);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(255, 255, 255);
-  doc.text("GAYRİMENKUL & YAPI", margin + 34, 14);
-
-  // Listing Type / Date in Header
-  doc.setFontSize(8);
-  doc.setTextColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  const dateStr = new Date().toLocaleDateString("tr-TR");
-  doc.text(`PORTFÖY BROŞÜRÜ | ${dateStr}`, pageWidth - margin, 14, { align: "right" });
-
-  let y = 34;
-
-  // 2. Property Title & Location
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-  
-  // Wrap title if long
-  const titleLines = doc.splitTextToSize(property.title || "Lüks Gayrimenkul Portföyü", contentWidth);
-  doc.text(titleLines, margin, y);
-  y += titleLines.length * 6 + 1;
-
-  // Location string
-  const locStr = [property.location, property.district, property.city].filter(Boolean).join(" / ") || "İstanbul";
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9.5);
-  doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-  doc.text(`Konum: ${locStr} ${property.ilan_no ? `• İlan No: #${property.ilan_no}` : ""}`, margin, y);
-  y += 6;
-
-  // 3. Main Property Image
-  const mainImgUrl = property.images?.[0];
-  let imgLoaded = false;
-
-  if (mainImgUrl) {
-    try {
-      const base64 = await getBase64ImageFromUrl(mainImgUrl);
-      if (base64) {
-        doc.addImage(base64, "JPEG", margin, y, contentWidth, 75, undefined, "FAST");
-        imgLoaded = true;
-      }
-    } catch (e) {
-      console.warn("Could not load image for PDF", e);
-    }
-  }
-
-  if (!imgLoaded) {
-    // Placeholder box if image fails
-    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.rect(margin, y, contentWidth, 50, "F");
-    doc.setFontSize(10);
-    doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-    doc.text("Fotoğraf Yüklenemedi", pageWidth / 2, y + 25, { align: "center" });
-    y += 54;
-  } else {
-    y += 79;
-  }
-
-  // 4. Price & Tag Banner
-  doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-  doc.roundedRect(margin, y, contentWidth, 14, 2, 2, "F");
-  doc.setDrawColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  doc.setLineWidth(0.5);
-  doc.roundedRect(margin, y, contentWidth, 14, 2, 2, "S");
-
-  // Price formatting
+  // Format price
   let priceStr = "Fiyat Belirtilmedi";
   if (property.price) {
     const numPrice = Number(property.price);
@@ -177,119 +75,377 @@ export async function generatePropertyPDF(property: PropertyBrochureData): Promi
     }
   }
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  doc.text(priceStr, margin + 6, y + 9.5);
+  const locStr = [property.location, property.district, property.city].filter(Boolean).join(" / ") || "İstanbul";
+  const dateStr = new Date().toLocaleDateString("tr-TR");
+  const listingBadge = (property.listing_type === "kiralik" ? "Kiralık" : "Satılık") + " " + (property.property_type || "Konut");
+  const cleanDesc = (property.description || "").replace(/<[^>]*>?/gm, "").trim();
 
-  const listingBadge = (property.listing_type === "kiralik" ? "KİRALIK" : "SATILIK") + " " + (property.property_type || "KONUT").toUpperCase();
-  doc.setFontSize(9);
-  doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-  doc.text(listingBadge, pageWidth - margin - 6, y + 9.5, { align: "right" });
+  // Load images as base64
+  const mainImgUrl = property.images?.[0];
+  let mainImgB64: string | null = null;
+  const galleryB64: string[] = [];
 
-  y += 20;
-
-  // 5. Key Specifications Grid (Table)
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-  doc.text("GAYRİMENKUL ÖZELLİKLERİ", margin, y);
-  y += 5;
-
-  const specs = [
-    ["Brüt / Net Alan", `${property.gross_m2 || property.net_m2 || "—"} m²`],
-    ["Oda Sayısı", property.bedrooms ? `${property.bedrooms} Oda` : "—"],
-    ["Banyo Sayısı", property.bathrooms ? `${property.bathrooms} Banyo` : "—"],
-    ["Bulunduğu Kat", property.floor ? `${property.floor}. Kat` : "—"],
-    ["Bina Yaşı", property.building_age || "0 (Sıfır)"],
-    ["Isıtma Tipi", property.heating || "Kombi (Doğalgaz)"],
-    ["Tapu Durumu", property.tapu_durumu || "Kat Mülkiyetli"],
-    ["Krediye Uygunluk", property.credit_eligible !== false ? "Evet / Uygun" : "Hayır"],
-  ];
-
-  const colWidth = contentWidth / 4;
-  const rowHeight = 12;
-
-  specs.forEach(([k, v], idx) => {
-    const colIdx = idx % 4;
-    const rowIdx = Math.floor(idx / 4);
-    const cellX = margin + colIdx * colWidth;
-    const cellY = y + rowIdx * rowHeight;
-
-    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.rect(cellX, cellY, colWidth - 2, rowHeight - 2, "F");
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-    doc.text(k, cellX + 3, cellY + 4);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8.5);
-    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-    doc.text(v, cellX + 3, cellY + 8.5);
-  });
-
-  y += Math.ceil(specs.length / 4) * rowHeight + 6;
-
-  // 6. Property Description
-  if (property.description) {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-    doc.text("PORTFÖY AÇIKLAMASI", margin, y);
-    y += 4.5;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-
-    // Strip HTML tags if description has any
-    const cleanDesc = property.description.replace(/<[^>]*>?/gm, "").trim();
-    const descLines = doc.splitTextToSize(cleanDesc, contentWidth);
-    // Limit lines to fit page
-    const maxDescLines = 14;
-    const printedLines = descLines.slice(0, maxDescLines);
-    doc.text(printedLines, margin, y);
-    y += printedLines.length * 3.8 + 6;
+  if (mainImgUrl) {
+    mainImgB64 = await imageToBase64(mainImgUrl);
   }
 
-  // 7. Footer Contact & Agency Signature Box (Bottom of Page)
-  const footerY = pageHeight - 34;
-  doc.setFillColor(darkBg[0], darkBg[1], darkBg[2]);
-  doc.rect(0, footerY, pageWidth, 34, "F");
+  // Load up to 4 gallery images (skip the first one which is already main)
+  const galleryUrls = (property.images || []).slice(1, 5);
+  for (const url of galleryUrls) {
+    const b64 = await imageToBase64(url);
+    if (b64) galleryB64.push(b64);
+  }
 
-  // Top Accent Gold Line for Footer
-  doc.setFillColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  doc.rect(0, footerY, pageWidth, 1.5, "F");
+  const specs = [
+    { label: "Brüt Alan", value: property.gross_m2 ? `${property.gross_m2} m²` : "—" },
+    { label: "Net Alan", value: property.net_m2 ? `${property.net_m2} m²` : "—" },
+    { label: "Oda Sayısı", value: property.bedrooms ? `${property.bedrooms} Oda` : "—" },
+    { label: "Banyo", value: property.bathrooms ? `${property.bathrooms} Banyo` : "—" },
+    { label: "Bulunduğu Kat", value: property.floor ? `${property.floor}. Kat` : "—" },
+    { label: "Toplam Kat", value: property.total_floors ? `${property.total_floors} Kat` : "—" },
+    { label: "Bina Yaşı", value: property.building_age || "Sıfır" },
+    { label: "Isıtma Tipi", value: property.heating || "Kombi (Doğalgaz)" },
+    { label: "Tapu Durumu", value: property.tapu_durumu || "Kat Mülkiyetli" },
+    { label: "Krediye Uygunluk", value: property.credit_eligible !== false ? "Evet / Uygun" : "Hayır" },
+  ];
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  doc.setTextColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  doc.text("SARRAF 34 GAYRİMENKUL & YAPI", margin, footerY + 8);
+  const galleryHtml = galleryB64.length > 0 ? `
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(galleryB64.length, 4)},1fr);gap:8px;margin-top:14px;">
+      ${galleryB64.map(b => `<img src="${b}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" />`).join("")}
+    </div>
+  ` : "";
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(255, 255, 255);
-  doc.text("Adres: Yakuplu Mah. Hürriyet Bulvarı No:12/A Beylikdüzü / İSTANBUL", margin, footerY + 14);
-  doc.text("Web: www.sarraf34.com | E-posta: info@sarraf34.com", margin, footerY + 19);
+  const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    @page { 
+      size: A4; 
+      margin: 0; 
+    }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1e293b; 
+      background: #fff;
+      width: 210mm;
+      min-height: 297mm;
+      position: relative;
+    }
 
-  // Agent Contact Details on Right
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  doc.setTextColor(255, 255, 255);
-  const agentName = property.agent_name || "Yetkili Portföy Danışmanı";
-  doc.text(agentName, pageWidth - margin, footerY + 8, { align: "right" });
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      position: relative;
+      padding-bottom: 50mm;
+    }
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(primaryGold[0], primaryGold[1], primaryGold[2]);
-  const phone = property.agent_phone || "+90 532 552 34 34";
-  doc.text(`Tel / WhatsApp: ${phone}`, pageWidth - margin, footerY + 14, { align: "right" });
-  doc.setTextColor(200, 200, 200);
-  doc.text("Randevu & Portföy Sunumu İçin Arayınız", pageWidth - margin, footerY + 19, { align: "right" });
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #c5a059;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #c5a059;
+      letter-spacing: 1px;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    .header-right {
+      text-align: right;
+      font-size: 9px;
+      color: #c5a059;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
 
-  // Save the PDF
-  const filename = `Sarraf34_${(property.title || "Ilan").replace(/[^a-zA-Z0-9]/g, "_").slice(0, 30)}.pdf`;
-  doc.save(filename);
+    /* Content */
+    .content { padding: 20px 24px; }
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .location {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+    .location strong { color: #c5a059; }
+
+    /* Main Image */
+    .main-image-container {
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 14px;
+    }
+    .main-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .no-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    /* Price Banner */
+    .price-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 2px solid #c5a059;
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin: 16px 0;
+    }
+    .price-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: #92400e;
+    }
+    .listing-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: #0f172a;
+      background: #fff;
+      padding: 5px 12px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Specs Grid */
+    .specs-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #c5a059;
+      letter-spacing: 0.5px;
+    }
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .spec-cell {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .spec-label {
+      font-size: 8px;
+      color: #64748b;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 3px;
+    }
+    .spec-value {
+      font-size: 11px;
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    /* Description */
+    .desc-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #c5a059;
+    }
+    .desc-text {
+      font-size: 10px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-top: 3px solid #c5a059;
+    }
+    .footer-left { }
+    .footer-brand {
+      font-size: 13px;
+      font-weight: 700;
+      color: #c5a059;
+      margin-bottom: 4px;
+    }
+    .footer-info {
+      font-size: 8.5px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .footer-right { text-align: right; }
+    .footer-agent {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .footer-phone {
+      font-size: 10px;
+      color: #c5a059;
+      font-weight: 500;
+    }
+    .footer-cta {
+      font-size: 8px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">
+        <div>
+          <div class="brand-name">SARRAF 34</div>
+          <div class="brand-sub">Gayrimenkul &amp; Yapı</div>
+        </div>
+      </div>
+      <div class="header-right">
+        PORTFÖY BROŞÜRÜ<br>${dateStr}
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="title">${escapeHtml(property.title || "Lüks Gayrimenkul")}</div>
+      <div class="location">
+        <strong>📍 Konum:</strong> ${escapeHtml(locStr)}
+        ${property.ilan_no ? ` &nbsp;•&nbsp; <strong>İlan No:</strong> #${escapeHtml(property.ilan_no)}` : ""}
+      </div>
+
+      <!-- Main Image -->
+      <div class="main-image-container">
+        ${mainImgB64 
+          ? `<img src="${mainImgB64}" alt="Ana Fotoğraf" />` 
+          : `<div class="no-image">Fotoğraf Yüklenemedi</div>`
+        }
+      </div>
+
+      ${galleryHtml}
+
+      <!-- Price Banner -->
+      <div class="price-banner">
+        <div class="price-text">${escapeHtml(priceStr)}</div>
+        <div class="listing-badge">${escapeHtml(listingBadge)}</div>
+      </div>
+
+      <!-- Specifications -->
+      <div class="specs-title">GAYRİMENKUL ÖZELLİKLERİ</div>
+      <div class="specs-grid">
+        ${specs.map(s => `
+          <div class="spec-cell">
+            <div class="spec-label">${escapeHtml(s.label)}</div>
+            <div class="spec-value">${escapeHtml(s.value)}</div>
+          </div>
+        `).join("")}
+      </div>
+
+      ${cleanDesc ? `
+        <div class="desc-title">PORTFÖY AÇIKLAMASI</div>
+        <div class="desc-text">${escapeHtml(cleanDesc.slice(0, 1200))}</div>
+      ` : ""}
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="footer-left">
+        <div class="footer-brand">SARRAF 34 GAYRİMENKUL &amp; YAPI</div>
+        <div class="footer-info">
+          Yakuplu Mah. Hürriyet Bulvarı No:12/A Beylikdüzü / İSTANBUL<br>
+          Web: www.sarraf34.com &nbsp;|&nbsp; E-posta: info@sarraf34.com
+        </div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-agent">${escapeHtml(property.agent_name || "Yetkili Portföy Danışmanı")}</div>
+        <div class="footer-phone">Tel / WhatsApp: ${escapeHtml(property.agent_phone || "+90 532 552 34 34")}</div>
+        <div class="footer-cta">Randevu &amp; Portföy Sunumu İçin Arayınız</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  // Open print dialog which generates a proper PDF with full Turkish support
+  const printWindow = window.open("", "_blank", "width=794,height=1123");
+  if (!printWindow) {
+    throw new Error("Pop-up penceresi engellenmiş olabilir. Lütfen pop-up izni verin.");
+  }
+
+  printWindow.document.write(html);
+  printWindow.document.close();
+
+  // Wait for images and fonts to load
+  await new Promise<void>((resolve) => {
+    printWindow.onload = () => resolve();
+    // Fallback in case onload doesn't fire
+    setTimeout(resolve, 2000);
+  });
+
+  // Additional wait for font rendering
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  printWindow.focus();
+  printWindow.print();
+}
+
+/** Escape HTML special characters */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
