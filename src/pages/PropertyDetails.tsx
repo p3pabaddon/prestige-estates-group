@@ -149,6 +149,7 @@ const PropertyDetails = () => {
   const [isPriceAlertOpen, setIsPriceAlertOpen] = useState<boolean>(false);
   const [isTourModalOpen, setIsTourModalOpen] = useState<boolean>(false);
   const [isSocialPostOpen, setIsSocialPostOpen] = useState<boolean>(false);
+  const [isPdfGenerating, setIsPdfGenerating] = useState<boolean>(false);
 
   // Touch swipe state for mobile gestures
   const touchStartX = useRef<number | null>(null);
@@ -381,8 +382,6 @@ const PropertyDetails = () => {
     setLightboxIndex(idx);
     setIsLightboxOpen(true);
   };
-
-  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
 
   const handleDownloadPDF = async () => {
     if (!property) return;
