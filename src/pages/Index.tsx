@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { getPropertyDetailUrl } from "@/lib/propertyUrl";
 import { useRef, useEffect, useState } from "react";
 import { ArrowRight, Eye, Shield, Star, TrendingUp, Building2 } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -399,7 +400,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {soldProperties.map((p, i) => (
                 <ScrollReveal key={p.id || p.title} delay={i * 0.1}>
-                  <Link to={p.id ? `/ilan/${p.id}` : "/sold"} className="luxury-card group block overflow-hidden">
+                  <Link to={p.id ? getPropertyDetailUrl({ id: p.id, ilan_no: p.ilan_no, title: p.title, property_type: p.property_type, listing_type: p.listing_type }) : "/sold"} className="luxury-card group block overflow-hidden">
                     <div className="relative overflow-hidden aspect-[4/3]">
                       <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-background/40" />

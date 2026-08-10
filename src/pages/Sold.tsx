@@ -7,6 +7,7 @@ import SectionHeading from "@/components/SectionHeading";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatTRY } from "@/lib/crm";
+import { getPropertyDetailUrl } from "@/lib/propertyUrl";
 import heroVilla from "@/assets/hero-villa.jpg";
 
 interface SoldProperty {
@@ -109,7 +110,7 @@ const Sold = () => {
 
                 return (
                   <ScrollReveal key={p.id} delay={i * 0.08}>
-                    <Link to={`/ilan/${p.id}`} className="luxury-card group block overflow-hidden">
+                    <Link to={getPropertyDetailUrl({ id: p.id, ilan_no: p.ilan_no, title: p.title, property_type: p.property_type, listing_type: p.listing_type })} className="luxury-card group block overflow-hidden">
                       <div className="relative overflow-hidden aspect-[4/3]">
                         <img
                           src={img}

@@ -289,6 +289,7 @@ const PropertyDetails = () => {
 
             return {
               id: item.id,
+              ilan_no: item.ilan_no,
               image: primaryImg,
               title: item.title,
               location: loc,

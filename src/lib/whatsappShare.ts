@@ -1,4 +1,5 @@
 import { formatTRY } from "@/lib/crm";
+import { getPropertyDetailUrl } from "./propertyUrl";
 
 export interface PropertyShareData {
   id?: string;
@@ -42,9 +43,13 @@ export function generateWhatsAppPropertyMessage(property: PropertyShareData, cus
   const baths = property.bathrooms ? `${property.bathrooms} Banyo` : "";
   const specs = [rooms, baths, m2Str].filter(Boolean).join(" | ");
 
-  const listingUrl = property.id 
-    ? `${window.location.origin}/ilan/${property.id}`
-    : window.location.href;
+  const propertyUrl = `${window.location.origin}${getPropertyDetailUrl({ 
+    id: property.id, 
+    ilan_no: property.ilan_no, 
+    title: property.title, 
+    property_type: property.property_type, 
+    listing_type: property.listing_type 
+  })}`;
 
   const agent = customAgentName || "Sarraf 34 Gayrimenkul & Yatırım Danışmanlığı";
 
@@ -58,7 +63,7 @@ export function generateWhatsAppPropertyMessage(property: PropertyShareData, cus
 ${property.ilan_no ? `🔢 *İlan No:* #${property.ilan_no}` : ""}
 
 🔗 *Fotoğraflar & Detaylı İnceleme:*
-${listingUrl}
+${propertyUrl}
 
 📞 *Detaylı Bilgi & Randevu Talebi:*
 ${agent}

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Trash2, Phone, Mail, Plus, MessageCircle, Building2, UserCheck, Sparkles, ExternalLink, Download, Loader2 } from "lucide-react";
 import { generatePropertyPDF } from "@/lib/pdfBrochure";
 import { sharePropertyOnWhatsApp } from "@/lib/whatsappShare";
+import { getPropertyDetailUrl } from "@/lib/propertyUrl";
 
 const input =
   "w-full bg-secondary border border-border px-3 py-2.5 text-foreground font-body text-sm focus:outline-none focus:border-primary rounded-sm";
@@ -437,8 +438,7 @@ const CustomerDetail = () => {
                           </div>
 
                           <Link
-                            to={`/ilan/${p.id}`}
-                            target="_blank"
+                            to={getPropertyDetailUrl({ id: p.id, ilan_no: p.ilan_no, title: p.title, property_type: p.property_type, listing_type: p.listing_type })}
                             className="text-xs font-semibold text-foreground truncate hover:text-primary block font-body"
                           >
                             {p.title}
@@ -449,8 +449,7 @@ const CustomerDetail = () => {
                         </div>
 
                         <Link
-                          to={`/ilan/${p.id}`}
-                          target="_blank"
+                          to={getPropertyDetailUrl({ id: p.id, ilan_no: p.ilan_no, title: p.title, property_type: p.property_type, listing_type: p.listing_type })}
                           className="text-muted-foreground hover:text-foreground p-1"
                           title="İlanı Yeni Sekmede Aç"
                         >
@@ -485,7 +484,7 @@ const CustomerDetail = () => {
                                 : `90${clientPhone}`
                               : "";
 
-                            const propertyUrl = `${window.location.origin}/ilan/${p.id}`;
+                            const propertyUrl = `${window.location.origin}${getPropertyDetailUrl({ id: p.id, ilan_no: p.ilan_no, title: p.title, property_type: p.property_type, listing_type: p.listing_type })}`;
                             const msg = `Sayın *${c.full_name}*,\n\nSarraf 34 Gayrimenkul olarak aradığınız kriterlere özel (%${p.matchScore} Uyumlu) portföy önerimiz:\n\n🏠 *${p.title}*\n📍 *Konum:* ${p.district || p.city || "İstanbul"}\n💰 *Fiyat:* ${formatTRY(p.price)}\n\nİlan Detayları ve Fotoğraflar:\n🔗 ${propertyUrl}\n\nİnceleyip randevu oluşturmak isterseniz bize buradan dilediğiniz an yazabilirsiniz.`;
 
                             const waLink = formattedPhone

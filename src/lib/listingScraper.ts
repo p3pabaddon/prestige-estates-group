@@ -165,10 +165,12 @@ export function isLegitimatePropertyImage(url: string): boolean {
     if (u.includes(pattern)) return false;
   }
 
-  // Must end with image extension or have common photo CDN query params
-  const hasExt = /\.(jpe?g|webp|png|avif)(\?.*)?$/i.test(u);
-  const hasPhotoPath = /\/(photos|photos_large|ilan|listing|big|gallery)\//i.test(u);
-  return hasExt || hasPhotoPath;
+  // If it's a base64 data URI, it's valid
+  if (u.startsWith("data:image/")) return true;
+  
+  // If it doesn't match junk patterns, we assume it's valid.
+  // We don't strictly require image extensions because some CDNs (like Unsplash or Supabase Storage) don't have them in the URL.
+  return true;
 }
 
 // ─── Turkish Real Estate Districts & Neighborhoods Knowledge Base ──────────
